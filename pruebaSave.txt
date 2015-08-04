@@ -1,1 +1,4 @@
-Hola esta es la segunda linea que le agrego a pruebaSave.txt
+Hola este es otro intento de lineA -
+Hola este es otro intento de lineA
+Hola este es otro intento de lineA
+Hola este es otro intento de lineA
