@@ -49,16 +49,26 @@ public class ReaderBluetooth extends Thread {
         
         String incoming="";
         
-        try{
-            byte singleData = (byte) input.read();
+        try{    
+            byte singleData = 0;
             
-            if(singleData != BotCommunicator.NEW_LINE_ASCII){
-                incoming=new String(new byte[]{singleData});
-            }
+                do{
+            
+                singleData = (byte) input.read();
+                incoming += new String(new byte[]{singleData});
+                
+                }while(singleData != 0);
+                /*if(singleData != 0){
+                //if(singleData != BotCommunicator.NEW_LINE_ASCII){
+                    incoming += new String(new byte[]{singleData});
+                }else{
+                    incoming = "***NL***";
+                }*/
+
         } catch (IOException ex) {
             System.err.println("Problema al leer desde el flujo de entrada.");
         }
-        JOptionPane.showMessageDialog(null, this, incoming, MIN_PRIORITY);
+        //JOptionPane.showMessageDialog(null, this, incoming, MIN_PRIORITY);
         return incoming;
     }
     

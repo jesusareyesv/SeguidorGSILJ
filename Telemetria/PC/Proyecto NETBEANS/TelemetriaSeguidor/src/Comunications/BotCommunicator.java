@@ -39,8 +39,8 @@ public class BotCommunicator implements IOBluetoothConstants{//implements Serial
     private SerialPort serialPort = null;//numero de puerto actual
     private boolean isConectado = false;//bandera de conexion
     
-    private InputStream input =null;
-    private OutputStream output =null;
+    private InputStream input = null;
+    private OutputStream output = null;
     
     private ReaderBluetooth reader;
     private SenderBluetooth sender;
@@ -230,15 +230,17 @@ public class BotCommunicator implements IOBluetoothConstants{//implements Serial
         while(!this.isConectado && !cancell){
             searchPorts();
             
-            try {
-                cancell = !connect();
-            } catch (IOException ex) {
-                agregarMensaje("Error al conectar con el puerto seleccionado");
+            if(this.puertoSeleccionado != null){
+                try {
+                    cancell = !connect();
+                } catch (IOException ex) {
+                    agregarMensaje("Error al conectar con el puerto seleccionado");
+                }
+
+                if(isIsConectado())
+                    if(initIOStream())
+                        JOptionPane.showMessageDialog(null, "Conectado satisfactoriamente a "+puertoSeleccionado);
             }
-            
-            if(isIsConectado())
-                if(initIOStream())
-                    JOptionPane.showMessageDialog(null, "Conectado satisfactoriamente a "+puertoSeleccionado);
         }
     }
     

@@ -784,13 +784,13 @@ public class VentanaP extends javax.swing.JFrame {
         String incoming = this.communicator.getReader().getEntrada();
         String[] cadenas = incoming.split("/");
         
-        setProportionalFRobot(Integer.parseInt(cadenas[0]));
+        /*setProportionalFRobot(Integer.parseInt(cadenas[0]));
         setDerivativeFRobot(Integer.parseInt(cadenas[2]));
         setIntegralFRobot(Integer.parseInt(cadenas[1]));
         setPlusValuesFRobot(Integer.parseInt(cadenas[4]));
         setPWMLeft(Integer.parseInt(cadenas[5]));
         setPWMRight(Integer.parseInt(cadenas[6]));
-        //setCycleTime(Integer.parseInt(cadenas[7]));
+        //setCycleTime(Integer.parseInt(cadenas[7]));*/
         
         setComandLineText(incoming);
     }
