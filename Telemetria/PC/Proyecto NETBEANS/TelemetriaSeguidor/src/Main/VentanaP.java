@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 /**
  *
@@ -30,6 +31,7 @@ public class VentanaP extends javax.swing.JFrame {
     
     private BotCommunicatorTimer readerTimer;
     private BotCommunicatorTimer writerTimer;
+    private int consoleLineCounter;
     
     /**
      * Creates new form VentanaP
@@ -49,9 +51,9 @@ public class VentanaP extends javax.swing.JFrame {
         this.derivativeFRobotList=new ArrayList();
         this.integralFRobotList=new ArrayList();
         this.plusValuesFRobotList=new ArrayList();
-        readerTimer = new BotCommunicatorTimer(1000, new ReadFromBotCommunicatorTimerActionListener());
+        readerTimer = new BotCommunicatorTimer(20, new ReadFromBotCommunicatorTimerActionListener());
         writerTimer = new BotCommunicatorTimer(5000, new WriteToBotCommunicatorTimerActionListener());
-        
+        consoleLineCounter = 0;
         
         PWMLeft=PWMRight=position=cycleTime=proporcionalConst=derivativeConst=integralConst=proportionalFRobot=derivativeFRobot=integralFRobot=plusValuesFRobot=encoderA1=encoderA2=encoderB1=encoderB2=0;
     }
@@ -538,7 +540,7 @@ public class VentanaP extends javax.swing.JFrame {
     }//GEN-LAST:event_jSlider2StateChanged
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        this.setProporcionalConst(4);// TODO add your handling code here:
+        /*this.setProporcionalConst(4);// TODO add your handling code here:
         this.setDerivativeConst(3);
         this.setIntegralConst(2);
         
@@ -557,7 +559,15 @@ public class VentanaP extends javax.swing.JFrame {
         this.setEncoderA1(4);
         this.setEncoderA2(4);
         this.setEncoderB2(4);
-        this.setEncoderB1(4);
+        this.setEncoderB1(4);*/
+        try{
+            float p = Float.parseFloat(jTextField1.getText()), i = Float.parseFloat(jTextField4.getText()), d = Float.parseFloat(jTextField5.getText());
+            
+            setComandLineText("Proporcional="+p+"/Derivatio="+d+"/Integral="+i);
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this, "ERROR!!"+ e.getMessage()+" No es un valor válido. (Error en actualizacion de PID)", "Error en actualización de PID", JOptionPane.ERROR_MESSAGE);
+            setComandLineText(e.getMessage());
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -574,7 +584,7 @@ public class VentanaP extends javax.swing.JFrame {
 
     private void iniciar(){
         //this.jTextField1.setText("            ");
-        this.jTextField1.setEditable(false);
+        this.jTextField1.setEditable(true);
         
         //this.jTextField2.setText("           ");
         this.jTextField2.setEditable(false);
@@ -583,10 +593,10 @@ public class VentanaP extends javax.swing.JFrame {
         this.jTextField3.setEditable(false);
         
         //this.jTextField4.setText("              ");
-        this.jTextField4.setEditable(false);
+        this.jTextField4.setEditable(true);
         
         //this.jTextField5.setText("              ");
-        this.jTextField5.setEditable(false);
+        this.jTextField5.setEditable(true);
         
         this.jTextField6.setEditable(false);
         
@@ -781,26 +791,39 @@ public class VentanaP extends javax.swing.JFrame {
     }
     
     protected void readFromDataStream(){
-        String incoming = this.communicator.getReader().getEntrada();
-        String[] cadenas = incoming.split("/");
+        String incoming = null;
         
-        /*setProportionalFRobot(Integer.parseInt(cadenas[0]));
-        setDerivativeFRobot(Integer.parseInt(cadenas[2]));
-        setIntegralFRobot(Integer.parseInt(cadenas[1]));
-        setPlusValuesFRobot(Integer.parseInt(cadenas[4]));
-        setPWMLeft(Integer.parseInt(cadenas[5]));
-        setPWMRight(Integer.parseInt(cadenas[6]));
-        //setCycleTime(Integer.parseInt(cadenas[7]));*/
-        
-        setComandLineText(incoming);
+        if(this.communicator.getReader().isAvailable()){
+            
+            incoming = this.communicator.getReader().getEntrada();
+            
+            if(incoming != null){
+                String[] cadenas = incoming.split("/");
+                
+                try{
+                    setProportionalFRobot(Integer.parseInt(cadenas[0]));
+                    setDerivativeFRobot(Integer.parseInt(cadenas[2]));
+                    setIntegralFRobot(Integer.parseInt(cadenas[1]));
+                    setPlusValuesFRobot(Integer.parseInt(cadenas[3]));
+                    setPWMLeft(Integer.parseInt(cadenas[4]));
+                    setPWMRight(Integer.parseInt(cadenas[5]));
+                    setCycleTime(Integer.parseInt(cadenas[6]));
+                }catch(Exception e){
+                    setComandLineText("\nERROR! Problema al convertir data entrante desde el InputStream en valores numéricos.\n");
+                }
+                setComandLineText(consoleLineCounter+")"+incoming);
+                consoleLineCounter++;
+            }
+        }
     }
     
-    protected void writeToDataStream(){
-        this.communicator.getSender().writeData("Hola soy Jesus.");
+    protected void writeToDataStream(String s){
+        this.communicator.getSender().writeData(s);
     }
     
     protected void setComandLineText(String s){
         this.comandLineText += (s+"\n");
+        writeToDataStream("Recibido:"+s+" --//\n");
         jTextArea1.setText(comandLineText);
     }
     
@@ -815,7 +838,7 @@ public class VentanaP extends javax.swing.JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Listener.");
+            //System.out.println("Listener.");
             readFromDataStream();
         }
         
@@ -826,7 +849,7 @@ public class VentanaP extends javax.swing.JFrame {
         @Override
         public void actionPerformed(ActionEvent ae) {
             System.out.println("Writer");
-            writeToDataStream();
+            writeToDataStream("asd");
         }
         
     }

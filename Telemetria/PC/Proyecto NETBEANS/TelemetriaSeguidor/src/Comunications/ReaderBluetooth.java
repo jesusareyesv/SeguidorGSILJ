@@ -5,9 +5,11 @@
  */
 package Comunications;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,13 +22,16 @@ import javax.swing.JOptionPane;
 public class ReaderBluetooth extends Thread {
     private InputStream input =null;
     private boolean online = false;
-    
+    private BufferedReader buffer;
+    protected boolean available;
     protected String entrada;
    
     public ReaderBluetooth(InputStream in){
         this.input = in;
         this.entrada = "";
         online = true;
+        buffer = new BufferedReader(new InputStreamReader(in));
+        available = false;
         this.start();
     }
 
@@ -35,11 +40,12 @@ public class ReaderBluetooth extends Thread {
         int counter = 0;
         while(online){
             String s = this.read();
-            if(s != "" && !s.equals(entrada)){
+            if(s != ""){
                 entrada = s;
+                available = true;
             }
-            System.out.println(counter+"///"+s);
-            counter++;
+            //System.out.println(counter+"///"+s);
+            //counter++;
         }
         
         this.disconect();
@@ -49,8 +55,17 @@ public class ReaderBluetooth extends Thread {
         
         String incoming="";
         
-        try{    
-            byte singleData = 0;
+        try{   
+            
+            if(buffer.ready()){
+                String temp = buffer.readLine();
+                
+                if(temp != null){
+                    incoming = temp;
+                    //available = true;
+                }
+            }
+           /* byte singleData = 0;
             
                 do{
             
@@ -63,8 +78,8 @@ public class ReaderBluetooth extends Thread {
                     incoming += new String(new byte[]{singleData});
                 }else{
                     incoming = "***NL***";
-                }*/
-
+                }
+            */
         } catch (IOException ex) {
             System.err.println("Problema al leer desde el flujo de entrada.");
         }
@@ -103,8 +118,12 @@ public class ReaderBluetooth extends Thread {
     }
 
     public String getEntrada() {
+        available = false;
         return entrada;
     }
-    
+
+    public boolean isAvailable() {
+        return available;
+    }
     
 }
