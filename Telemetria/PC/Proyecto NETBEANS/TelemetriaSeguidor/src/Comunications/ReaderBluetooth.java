@@ -37,15 +37,12 @@ public class ReaderBluetooth extends Thread {
 
     @Override
     public void run() {
-        int counter = 0;
         while(online){
             String s = this.read();
             if(s != ""){
                 entrada = s;
                 available = true;
             }
-            //System.out.println(counter+"///"+s);
-            //counter++;
         }
         
         this.disconect();
@@ -81,7 +78,7 @@ public class ReaderBluetooth extends Thread {
                 }
             */
         } catch (IOException ex) {
-            System.err.println("Problema al leer desde el flujo de entrada.");
+            JOptionPane.showMessageDialog(null, "Problema al leer desde el flujo de entrada.", "Lectura errónea", JOptionPane.WARNING_MESSAGE);
         }
         //JOptionPane.showMessageDialog(null, this, incoming, MIN_PRIORITY);
         return incoming;
