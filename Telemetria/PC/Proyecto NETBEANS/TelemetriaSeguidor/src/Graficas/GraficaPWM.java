@@ -47,7 +47,7 @@ public class GraficaPWM extends Grafica{
         
         ChartPanel panelPWM = new ChartPanel(chartPWM);
         ChartPanel panelTCiclo = new ChartPanel(chartDutyCycle);
-
+        
         ventanaGrafica.add(panelPWM);
         ventanaGrafica.add(panelTCiclo);
         
@@ -60,7 +60,13 @@ public class GraficaPWM extends Grafica{
         pwmd.clear();
         dutyCicle.clear();
         
-        for (int ciclo = 0; ciclo < apwmi.size(); ciclo++) {
+        int inicio = 0;
+        
+        if(apwmi.size() > 80){
+            inicio = apwmi.size() - 80;
+        }
+        
+        for (int ciclo = inicio; ciclo < apwmi.size(); ciclo++) {
             pwmi.add(ciclo+1,apwmi.get(ciclo));
             pwmd.add(ciclo+1,apwmd.get(ciclo));
             dutyCicle.add(ciclo+1,tciclo.get(ciclo));

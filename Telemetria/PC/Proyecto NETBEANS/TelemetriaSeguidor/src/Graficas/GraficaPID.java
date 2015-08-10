@@ -45,7 +45,6 @@ public class GraficaPID extends Grafica{
         
         ChartPanel panel = new ChartPanel(chartPID);
         
-        
         ventanaGrafica.add(panel);
         
         ventanaGrafica.pack();
@@ -57,7 +56,13 @@ public class GraficaPID extends Grafica{
         integral.clear();
         proporcional.clear();
         
-        for (int ciclo = 0; ciclo < p.size(); ciclo++) {
+        int inicio = 0;
+        
+        if(p.size() > 200){
+            inicio = p.size() - 80;
+        }
+        
+        for (int ciclo = inicio; ciclo < p.size(); ciclo++) {
             derivativo.add(ciclo+1, d.get(ciclo));
             proporcional.add(ciclo+1, p.get(ciclo));
             integral.add(ciclo+1, i.get(ciclo));
@@ -67,7 +72,7 @@ public class GraficaPID extends Grafica{
     }
     
     public void agregar(double p, double i, double d){
-        if(contadorCiclo >= 50){
+        if(contadorCiclo > 200){
             proporcional.remove(0);
             derivativo.remove(0);
             integral.remove(0);

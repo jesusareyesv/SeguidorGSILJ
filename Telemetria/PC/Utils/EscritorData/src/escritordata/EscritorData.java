@@ -25,7 +25,7 @@ public class EscritorData {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-        Timer timer = new Timer(500, new ActionListener() {
+        Timer timer = new Timer(100, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -48,7 +48,7 @@ public class EscritorData {
         BufferedWriter writter = null;
         
         try {
-            writter = new BufferedWriter(new FileWriter("/dev/ttyUSB03"));
+            writter = new BufferedWriter(new FileWriter("/dev/ttyUSB02"));
         } catch (IOException ex) {
             Logger.getLogger(EscritorData.class.getName()).log(Level.SEVERE, null, ex);
         }
