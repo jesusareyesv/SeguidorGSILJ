@@ -67,6 +67,12 @@ public class GraficaPID extends Grafica{
     }
     
     public void agregar(double p, double i, double d){
+        if(contadorCiclo >= 50){
+            proporcional.remove(0);
+            derivativo.remove(0);
+            integral.remove(0);
+        }
+        
         proporcional.add(contadorCiclo, p);
         derivativo.add(contadorCiclo, d);
         integral.add(contadorCiclo, i);
