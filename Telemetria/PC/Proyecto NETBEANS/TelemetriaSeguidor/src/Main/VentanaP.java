@@ -8,6 +8,7 @@ package Main;
 import Comunications.BotCommunicator;
 import Graficas.GraficaPID;
 import Graficas.GraficaPWM;
+import Graficas.GraficaPosicion;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,6 +46,8 @@ public class VentanaP extends javax.swing.JFrame{
     
     private static GraficaPWM graficaPWM = null;
     private static GraficaPID graficaPID = null;
+    private static GraficaPosicion graficaPos = null;
+    
     private Random rnd = new Random();
     
     public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key"};
@@ -81,7 +84,7 @@ public class VentanaP extends javax.swing.JFrame{
         encoderA1=encoderA2=encoderB1=encoderB2=0;
 
         
-        Timer timer = new Timer(400, new ActionListener() {
+        Timer timer = new Timer(100, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -90,6 +93,8 @@ public class VentanaP extends javax.swing.JFrame{
                 setPWMLeft(rnd.nextInt(256));
                 setPWMRight(rnd.nextInt(256));
                 setCycleTime(rnd.nextInt(40));
+                
+                setPosition(rnd.nextInt(1000));
                 
                 setDerivativeFRobot(rnd.nextDouble()+rnd.nextInt(1000));
                 setIntegralFRobot(rnd.nextDouble()+rnd.nextInt(1000));
@@ -101,7 +106,9 @@ public class VentanaP extends javax.swing.JFrame{
                 if(graficaPID != null)
                     graficaPID.agregar(getProportionalFRobot(), getIntegralFRobot(), getDerivativeFRobot());
                 
-                sliderPosicion.setValue(rnd.nextInt(1000));
+                if(graficaPos != null)
+                    graficaPos.agregar(getPosition());
+                
             }
         });
         
@@ -812,6 +819,11 @@ public class VentanaP extends javax.swing.JFrame{
 
     private void sliderPosicionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sliderPosicionMouseClicked
         setCommandLineText("Wiiii!!");
+        
+        if(graficaPos == null)
+            graficaPos = new GraficaPosicion(positionList);
+        else
+            graficaPos.mostrarGrafica();
     }//GEN-LAST:event_sliderPosicionMouseClicked
     
     private void putComando(){
@@ -1166,6 +1178,9 @@ public class VentanaP extends javax.swing.JFrame{
                     if(graficaPID != null){
                         graficaPID.agregar(this.getProportionalFRobot(), this.getIntegralFRobot(), this.getDerivativeFRobot());
                     }
+                    
+                    if(graficaPos != null)
+                        graficaPos.agregar(getPosition());
                 }catch(Exception e){
                     setCommandLineText("\nERROR! Problema al convertir data entrante desde el InputStream en valores numéricos.\n");
                 }
