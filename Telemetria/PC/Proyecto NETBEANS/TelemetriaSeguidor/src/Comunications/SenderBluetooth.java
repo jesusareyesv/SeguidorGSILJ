@@ -35,11 +35,13 @@ public class SenderBluetooth {
         return correct;
     }
     
-    public void disconnect(){
+    public boolean disconnect(){
         try {
             output.close();
+            return true;
         } catch (IOException ex) {
             System.err.println("Problema al cerrar el flujo de salida.");
+            return false;
         }
     }
     

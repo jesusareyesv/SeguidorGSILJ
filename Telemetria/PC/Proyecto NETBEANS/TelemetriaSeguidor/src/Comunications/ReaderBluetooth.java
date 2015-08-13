@@ -5,9 +5,11 @@
  */
 package Comunications;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,26 +22,27 @@ import javax.swing.JOptionPane;
 public class ReaderBluetooth extends Thread {
     private InputStream input =null;
     private boolean online = false;
-    
+    private BufferedReader buffer;
+    protected boolean available;
     protected String entrada;
    
     public ReaderBluetooth(InputStream in){
         this.input = in;
         this.entrada = "";
         online = true;
+        buffer = new BufferedReader(new InputStreamReader(in));
+        available = false;
         this.start();
     }
 
     @Override
     public void run() {
-        int counter = 0;
         while(online){
             String s = this.read();
-            if(s != "" && !s.equals(entrada)){
+            if(s != ""){
                 entrada = s;
+                available = true;
             }
-            System.out.println(counter+"///"+s);
-            counter++;
         }
         
         this.disconect();
@@ -49,16 +52,35 @@ public class ReaderBluetooth extends Thread {
         
         String incoming="";
         
-        try{
-            byte singleData = (byte) input.read();
+        try{   
             
-            if(singleData != BotCommunicator.NEW_LINE_ASCII){
-                incoming=new String(new byte[]{singleData});
+            if(buffer.ready()){
+                String temp = buffer.readLine();
+                
+                if(temp != null){
+                    incoming = temp;
+                    //available = true;
+                }
             }
+           /* byte singleData = 0;
+            
+                do{
+            
+                singleData = (byte) input.read();
+                incoming += new String(new byte[]{singleData});
+                
+                }while(singleData != 0);
+                /*if(singleData != 0){
+                //if(singleData != BotCommunicator.NEW_LINE_ASCII){
+                    incoming += new String(new byte[]{singleData});
+                }else{
+                    incoming = "***NL***";
+                }
+            */
         } catch (IOException ex) {
-            System.err.println("Problema al leer desde el flujo de entrada.");
+            JOptionPane.showMessageDialog(null, "Problema al leer desde el flujo de entrada.", "Lectura errónea", JOptionPane.WARNING_MESSAGE);
         }
-        JOptionPane.showMessageDialog(null, this, incoming, MIN_PRIORITY);
+        //JOptionPane.showMessageDialog(null, this, incoming, MIN_PRIORITY);
         return incoming;
     }
     
@@ -93,8 +115,12 @@ public class ReaderBluetooth extends Thread {
     }
 
     public String getEntrada() {
+        available = false;
         return entrada;
     }
-    
+
+    public boolean isAvailable() {
+        return available;
+    }
     
 }

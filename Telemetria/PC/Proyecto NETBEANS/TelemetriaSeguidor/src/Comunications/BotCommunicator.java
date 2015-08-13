@@ -39,8 +39,8 @@ public class BotCommunicator implements IOBluetoothConstants{//implements Serial
     private SerialPort serialPort = null;//numero de puerto actual
     private boolean isConectado = false;//bandera de conexion
     
-    private InputStream input =null;
-    private OutputStream output =null;
+    private InputStream input = null;
+    private OutputStream output = null;
     
     private ReaderBluetooth reader;
     private SenderBluetooth sender;
@@ -76,7 +76,7 @@ public class BotCommunicator implements IOBluetoothConstants{//implements Serial
         }
     }*/
     
-    public void searchPorts(){
+    public boolean searchPorts(){
         ports = CommPortIdentifier.getPortIdentifiers();
         
         String salidaPane = "Puertos disponibles para conexión serial";
@@ -91,7 +91,14 @@ public class BotCommunicator implements IOBluetoothConstants{//implements Serial
                 portMap.put(currentPort.getName(), currentPort);
             }
         }
-        puertoSeleccionado=(String) JOptionPane.showInputDialog(null, "Seleccione el puerto a usar:", salidaPane, JOptionPane.QUESTION_MESSAGE, null, puertos.toArray(), null);
+        
+        if(portMap.size() > 0){
+            puertoSeleccionado=(String) JOptionPane.showInputDialog(null, "Seleccione el puerto a usar:", salidaPane, JOptionPane.QUESTION_MESSAGE, null, puertos.toArray(), null);
+            return true;
+        }else{
+            JOptionPane.showMessageDialog(null, "No existen puertos disponibles para la comunicacion serial. Verifique las conexiones.", "Error al conectar", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
     
     public boolean connect() throws IOException{
@@ -137,7 +144,7 @@ public class BotCommunicator implements IOBluetoothConstants{//implements Serial
             
             sender = new SenderBluetooth(output);
             sender.writeData(0+"");
-             
+            successful = true; 
         }
         catch (IOException e) {
             agregarMensaje("\nI/O Streams failed to open. (" + e.toString() + ")");
@@ -160,17 +167,21 @@ public class BotCommunicator implements IOBluetoothConstants{//implements Serial
     }
     
     public void disconnect(){
-        try{
-            //writeData(0, 0);
-            serialPort.removeEventListener();
-            serialPort.close();
-            input.close();
-            output.close();
-            setIsConectado(false);
-            agregarMensaje("Desconectado.");
-            
-        }catch(Exception e){
-            agregarMensaje("No se puedo desconectar del pueto especificado." + serialPort.getName()+  " excepcion: " + e.toString());
+        if(isConectado){
+            try{
+                //writeData(0, 0);
+                serialPort.removeEventListener();
+                serialPort.close();
+                input.close();
+                output.close();
+                setIsConectado(false);
+                agregarMensaje("Desconectado.");
+
+            }catch(Exception e){
+                agregarMensaje("No se puedo desconectar del pueto especificado." + serialPort.getName()+  " excepcion: " + e.toString());
+            }
+        }else{
+            JOptionPane.showMessageDialog(null, "No se puede desconectar porque no se encuentra conectado.", "Error al desconectar", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -224,33 +235,46 @@ public class BotCommunicator implements IOBluetoothConstants{//implements Serial
         }    
     }*/
     
-    public void iniciar(){
+    public boolean iniciar(){
         boolean cancell = false;
-        
-        while(!this.isConectado && !cancell){
-            searchPorts();
             
-            try {
-                cancell = !connect();
-            } catch (IOException ex) {
-                agregarMensaje("Error al conectar con el puerto seleccionado");
+            if(this.puertoSeleccionado != null && searchPorts()){
+                try {
+                    cancell = !connect();
+                } catch (IOException ex) {
+                    agregarMensaje("Error al conectar con el puerto seleccionado");
+                }
+
+                if(isIsConectado())
+                    if(initIOStream()){
+                        JOptionPane.showMessageDialog(null, "Conectado satisfactoriamente a "+puertoSeleccionado);
+                        return true;
+                    }
+            }else{
+                JOptionPane.showMessageDialog(null, "No ha seleccionado nigún puerto para la comunicación o no existen puertos disponibles.", "Error al abrir el puerto serial.", JOptionPane.ERROR_MESSAGE);
             }
             
-            if(isIsConectado())
-                if(initIOStream())
-                    JOptionPane.showMessageDialog(null, "Conectado satisfactoriamente a "+puertoSeleccionado);
-        }
+            return false;
     }
     
-    public void parar(){
-        this.reader.parar();
-        this.sender.disconnect();
+    public boolean parar(){
         
-        serialPort.removeEventListener();
-        serialPort.close();
-        setIsConectado(false);
+        if(isConectado){
+            this.reader.parar();
+
+            if(this.sender.disconnect()){
+
+                serialPort.removeEventListener();
+                serialPort.close();
+                setIsConectado(false);
+                agregarMensaje("Desconectado.");
+                return true;
+            }
+        }
         
-        agregarMensaje("Desconectado.");
+        return false;
+        
+        
     }
     
     public void agregarMensaje(String s){
@@ -265,6 +289,10 @@ public class BotCommunicator implements IOBluetoothConstants{//implements Serial
 
     public SenderBluetooth getSender() {
         return sender;
+    }
+
+    public String getPuertoSeleccionado() {
+        return puertoSeleccionado;
     }
 
     
