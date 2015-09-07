@@ -38,7 +38,7 @@ public class VentanaP extends javax.swing.JFrame{
     protected ArrayList<String> comandosTecleados;
     int nComando = 0;
     
-    protected String comandLineText = "";
+    protected String commandLineText = "";
     
     private BotCommunicatorTimer readerTimer;
     private BotCommunicatorTimer writerTimer;
@@ -50,8 +50,8 @@ public class VentanaP extends javax.swing.JFrame{
     
     private Random rnd = new Random();
     
-    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key"};
-    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave"};
+    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear"};
+    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola."};
     private String clave;
     
     /**
@@ -746,10 +746,10 @@ public class VentanaP extends javax.swing.JFrame{
             
             jLabel20.setText(communicator.getPuertoSeleccionado());
             setCommandLineText("Message: Conectado satisfactoriamente al puerto serial.");
+            this.getContentPane().setBackground(Color.cyan);
         }else{
             setCommandLineText("ERROR: Ocurrió un error al tratar de conectarse al puerto serial.");
-        }
-        
+        } 
     }//GEN-LAST:event_buttonConectarActionPerformed
 
     private void buttonDesconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDesconectarActionPerformed
@@ -761,9 +761,10 @@ public class VentanaP extends javax.swing.JFrame{
             buttonDesconectar.setBackground(Color.BLUE);
             jLabel20.setText("No se encuentra conectado.");
             setCommandLineText("Message: Desconectado satisfactoriamente del puerto serial.");
+            this.getContentPane().setBackground(Color.GRAY);
         }else{
             setCommandLineText("ERROR: No se pudo desconectar del puerto serial.");
-        }
+        }  
     }//GEN-LAST:event_buttonDesconectarActionPerformed
 
     private void buttonGraficaPWMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGraficaPWMActionPerformed
@@ -879,12 +880,15 @@ public class VentanaP extends javax.swing.JFrame{
                 
             case 2: 
                 writeToDataStream(clave+"/p");
+                this.getContentPane().setBackground(Color.red);
                 break;
             case 3: 
                 writeToDataStream(clave+"/r");
+                this.getContentPane().setBackground(Color.green);
                 break;
             case 4: 
                 writeToDataStream(clave+"/s");
+                this.getContentPane().setBackground(Color.yellow);
                 break;
             case 5:
                 if(cValidos > 0){
@@ -920,13 +924,15 @@ public class VentanaP extends javax.swing.JFrame{
                     setCommandLineText("\t**Error de sintaxis.");
 
                 break;
+            case 8:
+                this.textAreaCommandLine.setText("");
+                this.commandLineText="";
+                break;
             default:
-                setCommandLineText("El comando no fue encontrado.");
+                setCommandLineText("El comando \""+comando+"\" no fue encontrado.");
                 break;
         }
-        
-        
-        
+
         textFieldComando.setText("");
     }
     
@@ -1155,49 +1161,54 @@ public class VentanaP extends javax.swing.JFrame{
     protected void readFromDataStream(){
         String incoming = null;
         
-        if(this.communicator.getReader().isAvailable()){
-            
-            incoming = this.communicator.getReader().getEntrada();
-            
-            if(incoming != null){
-                String[] cadenas = incoming.split("/");
-                
-                try{
-                    setProportionalFRobot(Double.parseDouble(cadenas[0]));
-                    setDerivativeFRobot(Double.parseDouble(cadenas[2]));
-                    setIntegralFRobot(Double.parseDouble(cadenas[1]));
-                    setPlusValuesFRobot(Double.parseDouble(cadenas[3]));
-                    setPWMLeft(Integer.parseInt(cadenas[4]));
-                    setPWMRight(Integer.parseInt(cadenas[5]));
-                    setCycleTime(Integer.parseInt(cadenas[6]));
-                    
-                    if(graficaPWM != null){
-                        graficaPWM.agregarASeries(this.getPWMLeft(), this.getPWMRight(), this.getCycleTime());
+        if(this.communicator.isIsConectado()){
+            if(this.communicator.getReader().isAvailable()){
+
+                incoming = this.communicator.getReader().getEntrada();
+
+                if(incoming != null){
+                    String[] cadenas = incoming.split("/");
+
+                    try{
+                        setProportionalFRobot(Double.parseDouble(cadenas[0]));
+                        setDerivativeFRobot(Double.parseDouble(cadenas[2]));
+                        setIntegralFRobot(Double.parseDouble(cadenas[1]));
+                        setPlusValuesFRobot(Double.parseDouble(cadenas[3]));
+                        setPWMLeft(Integer.parseInt(cadenas[4]));
+                        setPWMRight(Integer.parseInt(cadenas[5]));
+                        setCycleTime(Integer.parseInt(cadenas[6]));
+
+                        if(graficaPWM != null){
+                            graficaPWM.agregarASeries(this.getPWMLeft(), this.getPWMRight(), this.getCycleTime());
+                        }
+
+                        if(graficaPID != null){
+                            graficaPID.agregar(this.getProportionalFRobot(), this.getIntegralFRobot(), this.getDerivativeFRobot());
+                        }
+
+                        if(graficaPos != null)
+                            graficaPos.agregar(getPosition());
+                    }catch(Exception e){
+                        setCommandLineText("\nERROR! Problema al convertir data entrante desde el InputStream en valores numéricos.\n");
                     }
-                    
-                    if(graficaPID != null){
-                        graficaPID.agregar(this.getProportionalFRobot(), this.getIntegralFRobot(), this.getDerivativeFRobot());
-                    }
-                    
-                    if(graficaPos != null)
-                        graficaPos.agregar(getPosition());
-                }catch(Exception e){
-                    setCommandLineText("\nERROR! Problema al convertir data entrante desde el InputStream en valores numéricos.\n");
+                    setCommandLineText(consoleLineCounter+")"+incoming);
+                    consoleLineCounter++;
                 }
-                setCommandLineText(consoleLineCounter+")"+incoming);
-                consoleLineCounter++;
             }
         }
     }
     
     protected void writeToDataStream(String s){
-        this.communicator.getSender().writeData(s);
+        if(this.communicator.isIsConectado())
+            this.communicator.getSender().writeData(s);
+        else
+            setCommandLineText("La operación no pudo realizarse porque no se encuentra conectado al robot.");
     }
     
     protected void setCommandLineText(String s){
-        this.comandLineText += (s+"\n");
+        this.commandLineText += (s+"\n");
         //writeToDataStream("Recibido:"+s+" --//\n");
-        textAreaCommandLine.setText(comandLineText);
+        textAreaCommandLine.setText(commandLineText);
     }
     
     class BotCommunicatorTimer extends Timer{
