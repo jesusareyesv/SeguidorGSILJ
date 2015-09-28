@@ -66,7 +66,7 @@ public class GraficaPWM extends Grafica{
             inicio = apwmi.size() - 80;
         }
         
-        for (int ciclo = inicio; ciclo < apwmi.size(); ciclo++) {
+        for (int ciclo = inicio; ciclo < apwmi.size() - 1; ciclo++) {
             pwmi.add(ciclo+1,apwmi.get(ciclo));
             pwmd.add(ciclo+1,apwmd.get(ciclo));
             dutyCicle.add(ciclo+1,tciclo.get(ciclo));
