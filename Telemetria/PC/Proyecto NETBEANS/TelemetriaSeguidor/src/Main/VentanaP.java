@@ -6,9 +6,11 @@
 package Main;
 
 import Comunications.BotCommunicator;
+import Graficas.GraficaEncoders;
 import Graficas.GraficaPID;
 import Graficas.GraficaPWM;
 import Graficas.GraficaPosicion;
+import Graficas.GraficaUltrasonido;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,15 +32,15 @@ public class VentanaP extends javax.swing.JFrame{
     protected int PWMRight, PWMLeft, position, cycleTime;
     protected double proporcionalConst, derivativeConst, integralConst;
     protected double proportionalFRobot, derivativeFRobot, integralFRobot, plusValuesFRobot;
-    protected int encoderA1, encoderA2, encoderB1, encoderB2;
+    protected double encoderA1, encoderA2, encoderW1, encoderW2;
     
-    protected ArrayList<Integer> PWMRList, PWMLList, positionList, cycleTimeList;
-    protected ArrayList<Double> proportionalFRobotList, derivativeFRobotList, integralFRobotList, plusValuesFRobotList;
+    protected ArrayList<Integer> PWMRList, PWMLList, positionList, cycleTimeList, ultrasonidoList;
+    protected ArrayList<Double> proportionalFRobotList, derivativeFRobotList, integralFRobotList, plusValuesFRobotList, encoderA1List,encoderA2List,encoderW1List,encoderW2List;
     
     protected ArrayList<String> comandosTecleados;
     int nComando = 0;
     
-    protected String comandLineText = "";
+    protected String commandLineText = "";
     
     private BotCommunicatorTimer readerTimer;
     private BotCommunicatorTimer writerTimer;
@@ -47,11 +49,13 @@ public class VentanaP extends javax.swing.JFrame{
     private static GraficaPWM graficaPWM = null;
     private static GraficaPID graficaPID = null;
     private static GraficaPosicion graficaPos = null;
+    private static GraficaUltrasonido graficaUltra = null;
+    private static GraficaEncoders graficaEnc = null;
     
     private Random rnd = new Random();
     
-    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key"};
-    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave"};
+    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear"};
+    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola."};
     private String clave;
     
     /**
@@ -66,6 +70,11 @@ public class VentanaP extends javax.swing.JFrame{
         
         communicator=new BotCommunicator();
         //comm.start();
+        ultrasonidoList=new ArrayList();
+        encoderA2List=new ArrayList();
+        encoderA1List=new ArrayList();
+        encoderW1List=new ArrayList();
+        encoderW2List=new ArrayList();
         this.PWMLList=new ArrayList();
         this.PWMRList=new ArrayList();
         this.positionList=new ArrayList();
@@ -75,30 +84,38 @@ public class VentanaP extends javax.swing.JFrame{
         this.derivativeFRobotList=new ArrayList();
         this.integralFRobotList=new ArrayList();
         this.plusValuesFRobotList=new ArrayList();
-        readerTimer = new BotCommunicatorTimer(20, new ReadFromBotCommunicatorTimerActionListener());
+        readerTimer = new BotCommunicatorTimer(10, new ReadFromBotCommunicatorTimerActionListener());
+        //readerTimer.start();
         writerTimer = new BotCommunicatorTimer(5000, new WriteToBotCommunicatorTimerActionListener());
         consoleLineCounter = 0;
         
         PWMLeft=PWMRight=position=cycleTime=0;
         proporcionalConst=derivativeConst=integralConst=proportionalFRobot=derivativeFRobot=integralFRobot=plusValuesFRobot=0;
-        encoderA1=encoderA2=encoderB1=encoderB2=0;
+        encoderA1=encoderA2=encoderW1=encoderW2=0;
 
         
-        Timer timer = new Timer(100, new ActionListener() {
+        /*Timer timer = new Timer(100, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                /*setPWMLeft(((getPWMLeft() <= 200)?1:-1)*rnd.nextInt(20)+getPWMLeft());
-                setPWMRight(((getPWMRight()<= 200)?1:-1)*rnd.nextInt(20)+getPWMRight());*/
-                setPWMLeft(rnd.nextInt(256));
-                setPWMRight(rnd.nextInt(256));
-                setCycleTime(rnd.nextInt(40));
+                setPWMLeft(((getPWMLeft() <= 100)?1:-1)*rnd.nextInt(60)+getPWMLeft());
+                setPWMRight(((getPWMRight()<= 100)?1:-1)*rnd.nextInt(60)+getPWMRight());
+                /*setPWMLeft(rnd.nextInt(256));
+                setPWMRight(rnd.nextInt(256));*/
+                /*setCycleTime(rnd.nextInt(40));
                 
                 setPosition(rnd.nextInt(1000));
                 
                 setDerivativeFRobot(rnd.nextDouble()+rnd.nextInt(1000));
                 setIntegralFRobot(rnd.nextDouble()+rnd.nextInt(1000));
                 setProportionalFRobot(rnd.nextDouble()+rnd.nextInt(1000));
+                
+                setEncoderA1(rnd.nextDouble());
+                setEncoderA2(rnd.nextDouble());
+                setEncoderW1(rnd.nextDouble());
+                setEncoderW2(rnd.nextDouble());
+                
+                processingDataDistanceSensor(rnd.nextInt(2)+"");
                 
                 if(graficaPWM != null)
                     graficaPWM.agregarASeries(getPWMLeft(), getPWMRight(),getCycleTime());
@@ -109,10 +126,13 @@ public class VentanaP extends javax.swing.JFrame{
                 if(graficaPos != null)
                     graficaPos.agregar(getPosition());
                 
+                if(graficaEnc != null)
+                    graficaEnc.agregarASeries(encoderA1, encoderA2, encoderW1, encoderW2);
+                
             }
         });
         
-        timer.start();
+        timer.start();*/
     }
     
     /**
@@ -156,6 +176,7 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
+        buttonGraficaEncoders = new javax.swing.JButton();
         panelProcesoPID = new javax.swing.JPanel();
         jLabel14 = new javax.swing.JLabel();
         textFieldPPID_P = new javax.swing.JTextField();
@@ -180,6 +201,7 @@ public class VentanaP extends javax.swing.JFrame{
         panelUltrasonido = new javax.swing.JPanel();
         textFieldUltrasonido = new javax.swing.JTextField();
         jLabel21 = new javax.swing.JLabel();
+        buttonGraficaUltrasonido = new javax.swing.JButton();
 
         jInternalFrame1.setVisible(true);
 
@@ -359,7 +381,7 @@ public class VentanaP extends javax.swing.JFrame{
                                 .addGap(34, 34, 34)
                                 .addComponent(jLabel7))))
                     .addComponent(progressBarPWMD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textFieldTiempoCiclo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel13))
@@ -389,42 +411,54 @@ public class VentanaP extends javax.swing.JFrame{
 
         textFieldEncodersB2.setText("jTextField9");
 
-        jLabel9.setText("A1");
+        jLabel9.setText("a1");
 
-        jLabel10.setText("A2");
+        jLabel10.setText("a2");
 
-        jLabel11.setText("B2");
+        jLabel11.setText("w2");
 
-        jLabel12.setText("B1");
+        jLabel12.setText("w1");
+
+        buttonGraficaEncoders.setText("Grafica");
+        buttonGraficaEncoders.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonGraficaEncodersActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelEncodersLayout = new javax.swing.GroupLayout(panelEncoders);
         panelEncoders.setLayout(panelEncodersLayout);
         panelEncodersLayout.setHorizontalGroup(
             panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelEncodersLayout.createSequentialGroup()
-                .addGroup(panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelEncodersLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel12)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(textFieldEncodersB1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(panelEncodersLayout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jLabel8))
-                        .addGroup(panelEncodersLayout.createSequentialGroup()
-                            .addGap(14, 14, 14)
-                            .addComponent(jLabel9)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(textFieldEncodersA1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel10)
-                    .addComponent(jLabel11))
-                .addGap(18, 18, 18)
-                .addGroup(panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textFieldEncodersA2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(textFieldEncodersB2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(panelEncodersLayout.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addComponent(jLabel8))
+                                .addGroup(panelEncodersLayout.createSequentialGroup()
+                                    .addGap(14, 14, 14)
+                                    .addComponent(jLabel9)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(textFieldEncodersA1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(panelEncodersLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(textFieldEncodersB1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel10)
+                            .addComponent(jLabel11))
+                        .addGap(18, 18, 18)
+                        .addGroup(panelEncodersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(textFieldEncodersA2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(textFieldEncodersB2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(panelEncodersLayout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(buttonGraficaEncoders, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelEncodersLayout.setVerticalGroup(
@@ -444,7 +478,9 @@ public class VentanaP extends javax.swing.JFrame{
                     .addComponent(textFieldEncodersB2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11)
                     .addComponent(jLabel12))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addComponent(buttonGraficaEncoders)
+                .addContainerGap())
         );
 
         panelProcesoPID.setBackground(new java.awt.Color(175, 221, 248));
@@ -533,7 +569,7 @@ public class VentanaP extends javax.swing.JFrame{
                     .addComponent(textFieldPPID_Suma, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(buttonGraficaPID)
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         panelConexion.setBackground(new java.awt.Color(175, 221, 248));
@@ -648,6 +684,13 @@ public class VentanaP extends javax.swing.JFrame{
 
         jLabel21.setText("Sensor ultrasónico");
 
+        buttonGraficaUltrasonido.setText("Grafica");
+        buttonGraficaUltrasonido.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonGraficaUltrasonidoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelUltrasonidoLayout = new javax.swing.GroupLayout(panelUltrasonido);
         panelUltrasonido.setLayout(panelUltrasonidoLayout);
         panelUltrasonidoLayout.setHorizontalGroup(
@@ -658,8 +701,12 @@ public class VentanaP extends javax.swing.JFrame{
                 .addGap(59, 59, 59))
             .addGroup(panelUltrasonidoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel21)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(panelUltrasonidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelUltrasonidoLayout.createSequentialGroup()
+                        .addComponent(jLabel21)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(buttonGraficaUltrasonido, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         panelUltrasonidoLayout.setVerticalGroup(
             panelUltrasonidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -668,7 +715,9 @@ public class VentanaP extends javax.swing.JFrame{
                 .addComponent(jLabel21)
                 .addGap(26, 26, 26)
                 .addComponent(textFieldUltrasonido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(buttonGraficaUltrasonido)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -695,7 +744,7 @@ public class VentanaP extends javax.swing.JFrame{
                                     .addComponent(panelPWM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                     .addComponent(panelProcesoPID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 2, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -711,9 +760,9 @@ public class VentanaP extends javax.swing.JFrame{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(panelEncoders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelUltrasonido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(panelUltrasonido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelConsola, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -730,6 +779,7 @@ public class VentanaP extends javax.swing.JFrame{
             float p = Float.parseFloat(textFieldConstantesPID_P.getText()), i = Float.parseFloat(textFieldConstantesPID_I.getText()), d = Float.parseFloat(textFieldConstantesPID_D.getText());
             
             setCommandLineText("Proporcional="+p+"/Derivatio="+d+"/Integral="+i);
+            writeToDataStream("v/"+p+"/"+i+"/"+d);
         }catch(Exception e){
             JOptionPane.showMessageDialog(this, "ERROR!!"+ e.getMessage()+" No es un valor válido. (Error en actualizacion de PID)", "Error en actualización de PID", JOptionPane.ERROR_MESSAGE);
             setCommandLineText("ERROR!!"+ e.getMessage()+" No es un valor válido. (Error en actualizacion de PID)");
@@ -746,10 +796,10 @@ public class VentanaP extends javax.swing.JFrame{
             
             jLabel20.setText(communicator.getPuertoSeleccionado());
             setCommandLineText("Message: Conectado satisfactoriamente al puerto serial.");
+            this.getContentPane().setBackground(Color.cyan);
         }else{
             setCommandLineText("ERROR: Ocurrió un error al tratar de conectarse al puerto serial.");
-        }
-        
+        } 
     }//GEN-LAST:event_buttonConectarActionPerformed
 
     private void buttonDesconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDesconectarActionPerformed
@@ -761,9 +811,10 @@ public class VentanaP extends javax.swing.JFrame{
             buttonDesconectar.setBackground(Color.BLUE);
             jLabel20.setText("No se encuentra conectado.");
             setCommandLineText("Message: Desconectado satisfactoriamente del puerto serial.");
+            this.getContentPane().setBackground(Color.GRAY);
         }else{
             setCommandLineText("ERROR: No se pudo desconectar del puerto serial.");
-        }
+        }  
     }//GEN-LAST:event_buttonDesconectarActionPerformed
 
     private void buttonGraficaPWMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGraficaPWMActionPerformed
@@ -825,6 +876,20 @@ public class VentanaP extends javax.swing.JFrame{
         else
             graficaPos.mostrarGrafica();
     }//GEN-LAST:event_sliderPosicionMouseClicked
+
+    private void buttonGraficaUltrasonidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGraficaUltrasonidoActionPerformed
+        if(graficaUltra == null)
+            graficaUltra = new GraficaUltrasonido(ultrasonidoList);
+        else
+            graficaUltra.mostrarGrafica();
+    }//GEN-LAST:event_buttonGraficaUltrasonidoActionPerformed
+
+    private void buttonGraficaEncodersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGraficaEncodersActionPerformed
+        if(graficaEnc == null)
+            graficaEnc = new GraficaEncoders(encoderA1List, encoderA2List, encoderW1List, encoderW2List);
+        else
+            graficaEnc.mostrarGrafica();
+    }//GEN-LAST:event_buttonGraficaEncodersActionPerformed
     
     private void putComando(){
         String comando = textFieldComando.getText();
@@ -878,13 +943,16 @@ public class VentanaP extends javax.swing.JFrame{
                 break;
                 
             case 2: 
-                writeToDataStream(clave+"/p");
+                writeToDataStream("p");
+                this.getContentPane().setBackground(Color.red);
                 break;
             case 3: 
-                writeToDataStream(clave+"/r");
+                writeToDataStream("r");
+                this.getContentPane().setBackground(Color.green);
                 break;
             case 4: 
-                writeToDataStream(clave+"/s");
+                writeToDataStream("s");
+                this.getContentPane().setBackground(Color.yellow);
                 break;
             case 5:
                 if(cValidos > 0){
@@ -920,13 +988,15 @@ public class VentanaP extends javax.swing.JFrame{
                     setCommandLineText("\t**Error de sintaxis.");
 
                 break;
+            case 8:
+                this.textAreaCommandLine.setText("");
+                this.commandLineText="";
+                break;
             default:
-                setCommandLineText("El comando no fue encontrado.");
+                setCommandLineText("El comando \""+comando+"\" no fue encontrado.");
                 break;
         }
-        
-        
-        
+
         textFieldComando.setText("");
     }
     
@@ -1116,88 +1186,133 @@ public class VentanaP extends javax.swing.JFrame{
 ////        
     }
 
-    public int getEncoderA1() {
+    public double getEncoderA1() {
         return encoderA1;
     }
 
-    public void setEncoderA1(int encoderA1) {
+    public void setEncoderA1(double encoderA1) {
         this.encoderA1 = encoderA1;
         this.textFieldEncodersA1.setText(encoderA1+"");
+        encoderA1List.add(encoderA1);
     }
 
-    public int getEncoderA2() {
+    public double getEncoderA2() {
         return encoderA2;
     }
 
-    public void setEncoderA2(int encoderA2) {
+    public void setEncoderA2(double encoderA2) {
         this.encoderA2 = encoderA2;
         this.textFieldEncodersA2.setText(encoderA2+"");
+        encoderA2List.add(encoderA2);
     }
 
-    public int getEncoderB1() {
-        return encoderB1;
+    public double getEncoderW1() {
+        return encoderW1;
     }
 
-    public void setEncoderB1(int encoderB1) {
-        this.encoderB1 = encoderB1;
+    public void setEncoderW1(double encoderB1) {
+        this.encoderW1 = encoderB1;
         this.textFieldEncodersB1.setText(encoderB1+"");
+        encoderW1List.add(encoderB1);
     }
 
-    public int getEncoderB2() {
-        return encoderB2;
+    public double getEncoderW2() {
+        return encoderW2;
     }
 
-    public void setEncoderB2(int encoderB2) {
-        this.encoderB2 = encoderB2;
+    public void setEncoderW2(double encoderB2) {
+        this.encoderW2 = encoderB2;
         this.textFieldEncodersB2.setText(encoderB2+"");
+        encoderW2List.add(encoderB2);
     }
     
     protected void readFromDataStream(){
         String incoming = null;
         
-        if(this.communicator.getReader().isAvailable()){
-            
-            incoming = this.communicator.getReader().getEntrada();
-            
-            if(incoming != null){
-                String[] cadenas = incoming.split("/");
-                
-                try{
-                    setProportionalFRobot(Double.parseDouble(cadenas[0]));
-                    setDerivativeFRobot(Double.parseDouble(cadenas[2]));
-                    setIntegralFRobot(Double.parseDouble(cadenas[1]));
-                    setPlusValuesFRobot(Double.parseDouble(cadenas[3]));
-                    setPWMLeft(Integer.parseInt(cadenas[4]));
-                    setPWMRight(Integer.parseInt(cadenas[5]));
-                    setCycleTime(Integer.parseInt(cadenas[6]));
+        if(this.communicator.isIsConectado()){
+            if(this.communicator.getReader().isAvailable()){
+
+                incoming = this.communicator.getReader().getEntrada();
+
+                if(incoming != null){
+                    String[] cadenas = incoming.split("/");
                     
-                    if(graficaPWM != null){
-                        graficaPWM.agregarASeries(this.getPWMLeft(), this.getPWMRight(), this.getCycleTime());
-                    }
+                    if(cadenas[0].compareToIgnoreCase("message") == 0)
+                        setCommandLineText("MENSAJE:  "+cadenas[1]);
+                    else
+                        if(cadenas[0].compareToIgnoreCase("data") == 0)
+                            try{
+                                setProportionalFRobot(Double.parseDouble(cadenas[1]));
+                                setDerivativeFRobot(Double.parseDouble(cadenas[3]));
+                                setIntegralFRobot(Double.parseDouble(cadenas[2]));
+                                setPlusValuesFRobot(Double.parseDouble(cadenas[4]));
+                                setPWMLeft(Integer.parseInt(cadenas[5]));
+                                setPWMRight(Integer.parseInt(cadenas[6]));
+                                setCycleTime(Integer.parseInt(cadenas[7]));
+                                setPosition(Integer.parseInt(cadenas[8]));
+                                processingDataDistanceSensor(cadenas[9]);
+                                setEncoderW1(Double.parseDouble(cadenas[10]));
+                                setEncoderW1(Double.parseDouble(cadenas[11]));
+                                setEncoderA1(Double.parseDouble(cadenas[12]));
+                                setEncoderA2(Double.parseDouble(cadenas[13]));
+
+                                if(graficaPWM != null)
+                                    graficaPWM.agregarASeries(this.getPWMLeft(), this.getPWMRight(), this.getCycleTime());
+                                
+
+                                if(graficaPID != null)
+                                    graficaPID.agregar(this.getProportionalFRobot(), this.getIntegralFRobot(), this.getDerivativeFRobot());
+
+                                if(graficaPos != null)
+                                    graficaPos.agregar(getPosition());
+                                
+                                if(graficaEnc != null)
+                                    graficaEnc.agregarASeries(encoderA1, encoderA2, encoderW1, encoderW2);
+                                
+                                
+                            }catch(Exception e){
+                                setCommandLineText("\nERROR! Problema al convertir data entrante desde el InputStream en valores numéricos.\n");
+                            }
+                        else
+                            if(cadenas[0].compareToIgnoreCase("status") == 0)
+                                System.out.println("status");
                     
-                    if(graficaPID != null){
-                        graficaPID.agregar(this.getProportionalFRobot(), this.getIntegralFRobot(), this.getDerivativeFRobot());
-                    }
-                    
-                    if(graficaPos != null)
-                        graficaPos.agregar(getPosition());
-                }catch(Exception e){
-                    setCommandLineText("\nERROR! Problema al convertir data entrante desde el InputStream en valores numéricos.\n");
+                    setCommandLineText(consoleLineCounter+")"+incoming);
+                    consoleLineCounter++;
                 }
-                setCommandLineText(consoleLineCounter+")"+incoming);
-                consoleLineCounter++;
             }
         }
     }
     
+    private void processingDataDistanceSensor(String s){
+        int valor =Integer.parseInt(s);
+        
+        if(valor == 1){
+            textFieldUltrasonido.setText("Obstáculo!!!!");
+            panelUltrasonido.setBackground(Color.RED);
+            ultrasonidoList.add(1);
+                
+        }else{
+            textFieldUltrasonido.setText("Nada");
+            panelUltrasonido.setBackground(Color.GREEN);
+            ultrasonidoList.add(0);
+        }
+        
+        if(graficaUltra!=null)
+            graficaUltra.agregar((valor == 1)?1:0);
+    }
+    
     protected void writeToDataStream(String s){
-        this.communicator.getSender().writeData(s);
+        if(this.communicator.isIsConectado())
+            this.communicator.getSender().writeData(s);
+        else
+            setCommandLineText("La operación no pudo realizarse porque no se encuentra conectado al robot.");
     }
     
     protected void setCommandLineText(String s){
-        this.comandLineText += (s+"\n");
+        this.commandLineText += (s+"\n");
         //writeToDataStream("Recibido:"+s+" --//\n");
-        textAreaCommandLine.setText(comandLineText);
+        textAreaCommandLine.setText(commandLineText);
     }
     
     class BotCommunicatorTimer extends Timer{
@@ -1211,7 +1326,7 @@ public class VentanaP extends javax.swing.JFrame{
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            //System.out.println("Listener.");
+            System.out.println("Listener.");
             readFromDataStream();
         }
         
@@ -1232,8 +1347,10 @@ public class VentanaP extends javax.swing.JFrame{
     private javax.swing.JButton buttonConectar;
     private javax.swing.JButton buttonDesconectar;
     private javax.swing.JButton buttonEnviar;
+    private javax.swing.JButton buttonGraficaEncoders;
     private javax.swing.JButton buttonGraficaPID;
     private javax.swing.JButton buttonGraficaPWM;
+    private javax.swing.JButton buttonGraficaUltrasonido;
     private javax.swing.JInternalFrame jInternalFrame1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
