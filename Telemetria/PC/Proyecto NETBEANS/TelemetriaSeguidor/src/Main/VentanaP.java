@@ -43,6 +43,7 @@ public class VentanaP extends javax.swing.JFrame{
     protected String commandLineText = "";
     
     private BotCommunicatorTimer readerTimer;
+    
     private BotCommunicatorTimer writerTimer;
     private int consoleLineCounter;
     
@@ -54,8 +55,8 @@ public class VentanaP extends javax.swing.JFrame{
     
     private Random rnd = new Random();
     
-    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear"};
-    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola."};
+    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo"};
+    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión."};
     private String clave;
     
     /**
@@ -827,6 +828,7 @@ public class VentanaP extends javax.swing.JFrame{
             jLabel20.setText(communicator.getPuertoSeleccionado());
             setCommandLineText("Message: Conectado satisfactoriamente al puerto serial.");
             this.getContentPane().setBackground(Color.cyan);
+            putComando("echo Estoy vivo");
         }else{
             setCommandLineText("ERROR: Ocurrió un error al tratar de conectarse al puerto serial.");
         } 
@@ -949,11 +951,11 @@ public class VentanaP extends javax.swing.JFrame{
             
                 for (int i = 1; i < partes.length; i++) {
                     if(partes[i].compareToIgnoreCase("infra") == 0){
-                        sensores += "/i";
+                        sensores += "/1";
                         cValidos++;
                     }else{
                         if(partes[i].compareToIgnoreCase("ultra") == 0){
-                            sensores += "/u";
+                            sensores += "/2";
                             cValidos++;
                         }else{
                             setCommandLineText("\tLa opcion "+partes[i]+" no fue encontrada dentro del comando.");
@@ -997,7 +999,7 @@ public class VentanaP extends javax.swing.JFrame{
                 break;
             case 5:
                 if(cValidos > 0){
-                    //writeToDataStream(clave+"/a/"+(cValidos)+sensores);
+                    writeToDataStream(clave+"/a/"+(cValidos)+sensores);
                     setCommandLineText("\t**Activando sensores: "+sensores);
                 }else
                     setCommandLineText("\t**Error de sintaxis.");
@@ -1005,7 +1007,7 @@ public class VentanaP extends javax.swing.JFrame{
                 break;
             case 6: 
                 if(cValidos > 0){
-                    //writeToDataStream(clave+"/d/"+(cValidos)+sensores);
+                    writeToDataStream(clave+"/d/"+(cValidos)+sensores);
                     setCommandLineText("\t**Desactivando sensores: "+sensores);
                 }else
                     setCommandLineText("\t**Error de sintaxis.");
@@ -1032,6 +1034,9 @@ public class VentanaP extends javax.swing.JFrame{
             case 8:
                 this.textAreaCommandLine.setText("");
                 this.commandLineText="";
+                break;
+            case 9:
+                writeToDataStream("e/"+comando.substring(5));
                 break;
             default:
                 setCommandLineText("El comando \""+comando+"\" no fue encontrado.");
@@ -1315,8 +1320,25 @@ public class VentanaP extends javax.swing.JFrame{
                                 setCommandLineText("\nERROR! Problema al convertir data entrante desde el InputStream en valores numéricos.\n");
                             }
                         else
-                            if(cadenas[0].compareToIgnoreCase("status") == 0)
+                            if(cadenas[0].compareToIgnoreCase("status") == 0){
                                 System.out.println("status");
+                                String mensaje = "STATUS\n\n* Sensores infrarrojos ";
+                                
+                                if(Integer.parseInt(cadenas[1]) == 1){
+                                    mensaje += "activos";
+                                }else
+                                    mensaje += "inactivos";
+                                
+                                mensaje += ".\n* Sensor de distancia ";
+                                if(Integer.parseInt(cadenas[2]) == 1)
+                                    mensaje += "activo";
+                                else
+                                    mensaje += "inactivo";
+                                
+                                mensaje += ".";
+                                            
+                                JOptionPane.showMessageDialog(this, mensaje, "STATUS DEL ROBOT!!!", JOptionPane.INFORMATION_MESSAGE);
+                            }
                     
                     setCommandLineText(consoleLineCounter+")"+incoming);
                     consoleLineCounter++;
