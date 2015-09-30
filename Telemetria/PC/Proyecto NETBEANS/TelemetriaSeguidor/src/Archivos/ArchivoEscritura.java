@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
  * @author lab
  */
 public abstract class ArchivoEscritura {
-    protected static BufferedWriter bufferEscritura;
+    protected BufferedWriter bufferEscritura;
     
     public ArchivoEscritura(){}
     
@@ -28,7 +28,7 @@ public abstract class ArchivoEscritura {
     
     abstract void escribir();
     
-    void changeFile(String fileName){
+    public void changeFile(String fileName){
         try {
             bufferEscritura = new BufferedWriter(new FileWriter(fileName));
         } catch (IOException ex) {

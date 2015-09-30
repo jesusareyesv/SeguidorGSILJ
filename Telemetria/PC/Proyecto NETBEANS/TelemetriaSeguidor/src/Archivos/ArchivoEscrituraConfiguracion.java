@@ -33,7 +33,7 @@ public class ArchivoEscrituraConfiguracion extends ArchivoEscritura {
     void escribir() {
         Date fecha = new Date();
         try {
-            bufferEscritura.flush();
+            //bufferEscritura.flush();
             
             bufferEscritura.write("Archivo de configuracion. "+fecha.toString());
             bufferEscritura.newLine();

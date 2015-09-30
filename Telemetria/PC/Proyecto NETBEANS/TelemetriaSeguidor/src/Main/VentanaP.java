@@ -95,7 +95,7 @@ public class VentanaP extends javax.swing.JFrame{
         encoderA1=encoderA2=encoderW1=encoderW2=0;
 
         
-        /*Timer timer = new Timer(100, new ActionListener() {
+        Timer timer = new Timer(100, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -103,7 +103,7 @@ public class VentanaP extends javax.swing.JFrame{
                 setPWMRight(((getPWMRight()<= 100)?1:-1)*rnd.nextInt(60)+getPWMRight());
                 /*setPWMLeft(rnd.nextInt(256));
                 setPWMRight(rnd.nextInt(256));*/
-                /*setCycleTime(rnd.nextInt(40));
+                setCycleTime(rnd.nextInt(40));
                 
                 setPosition(rnd.nextInt(1000));
                 
@@ -133,7 +133,7 @@ public class VentanaP extends javax.swing.JFrame{
             }
         });
         
-        timer.start();*/
+        timer.start();
     }
     
     /**
@@ -194,6 +194,7 @@ public class VentanaP extends javax.swing.JFrame{
         buttonConectar = new javax.swing.JButton();
         buttonDesconectar = new javax.swing.JButton();
         jLabel20 = new javax.swing.JLabel();
+        buttonOpciones = new javax.swing.JButton();
         panelConsola = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         textAreaCommandLine = new javax.swing.JTextArea();
@@ -598,6 +599,13 @@ public class VentanaP extends javax.swing.JFrame{
 
         jLabel20.setText("No se encuentra conectado");
 
+        buttonOpciones.setText("Opciones");
+        buttonOpciones.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonOpcionesActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelConexionLayout = new javax.swing.GroupLayout(panelConexion);
         panelConexion.setLayout(panelConexionLayout);
         panelConexionLayout.setHorizontalGroup(
@@ -605,15 +613,16 @@ public class VentanaP extends javax.swing.JFrame{
             .addGroup(panelConexionLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(buttonOpciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(panelConexionLayout.createSequentialGroup()
+                        .addComponent(buttonConectar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(buttonDesconectar))
                     .addGroup(panelConexionLayout.createSequentialGroup()
                         .addGroup(panelConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel19)
                             .addComponent(jLabel20))
-                        .addGap(0, 24, Short.MAX_VALUE))
-                    .addGroup(panelConexionLayout.createSequentialGroup()
-                        .addComponent(buttonConectar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(buttonDesconectar)))
+                        .addGap(0, 24, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelConexionLayout.setVerticalGroup(
@@ -621,13 +630,15 @@ public class VentanaP extends javax.swing.JFrame{
             .addGroup(panelConexionLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel19)
-                .addGap(38, 38, 38)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
                 .addGroup(panelConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonConectar)
                     .addComponent(buttonDesconectar))
-                .addGap(18, 18, 18)
+                .addGap(12, 12, 12)
                 .addComponent(jLabel20)
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(buttonOpciones)
+                .addContainerGap())
         );
 
         panelConsola.setBackground(new java.awt.Color(175, 221, 248));
@@ -934,6 +945,20 @@ public class VentanaP extends javax.swing.JFrame{
     private void buttonStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStopActionPerformed
         putComando("stop");
     }//GEN-LAST:event_buttonStopActionPerformed
+
+    private void buttonOpcionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOpcionesActionPerformed
+        int showOptionDialog = JOptionPane.showOptionDialog(this, "¿Qué desea hacer?",  "Opciones de Guardado/Recate", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] {"Guardar","Abrir","Ver"}, "Guardar");
+        System.out.println("Value: "+showOptionDialog);
+        
+        switch(showOptionDialog){
+            case 0:
+                new Archivos.ArchivoEscrituraConfiguracion("Hola", Double.parseDouble(this.textFieldConstantesPID_P.getText()), Double.parseDouble(this.textFieldConstantesPID_I.getText()), Double.parseDouble(this.textFieldConstantesPID_D.getText()), 1, 0);
+                new Archivos.ArchivoEscrituraData("data", this.proportionalFRobotList, this.integralFRobotList, this.derivativeFRobotList, this.plusValuesFRobotList, this.encoderW1List, this.encoderW2List, this.encoderA1List, this.encoderA2List, this.PWMLList, this.PWMRList, this.positionList, null, cycleTimeList);
+                break;
+            case 1:break;
+            case 2:break;
+        }
+    }//GEN-LAST:event_buttonOpcionesActionPerformed
     
     private void putComando(String comando){
         
@@ -1414,6 +1439,7 @@ public class VentanaP extends javax.swing.JFrame{
     private javax.swing.JButton buttonGraficaPID;
     private javax.swing.JButton buttonGraficaPWM;
     private javax.swing.JButton buttonGraficaUltrasonido;
+    private javax.swing.JButton buttonOpciones;
     private javax.swing.JButton buttonRun;
     private javax.swing.JButton buttonStop;
     private javax.swing.JInternalFrame jInternalFrame1;

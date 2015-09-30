@@ -1,0 +1,6 @@
+Archivo de configuracion. Wed Sep 30 17:34:05 VET 2015
+2.3/P
+5.0/I
+7.0/D
+1/Infrarrojos
+0/Distancia
