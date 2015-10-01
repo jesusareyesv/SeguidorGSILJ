@@ -95,7 +95,7 @@ public class VentanaP extends javax.swing.JFrame{
         encoderA1=encoderA2=encoderW1=encoderW2=0;
 
         
-        Timer timer = new Timer(100, new ActionListener() {
+        /*Timer timer = new Timer(100, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -103,7 +103,7 @@ public class VentanaP extends javax.swing.JFrame{
                 setPWMRight(((getPWMRight()<= 100)?1:-1)*rnd.nextInt(60)+getPWMRight());
                 /*setPWMLeft(rnd.nextInt(256));
                 setPWMRight(rnd.nextInt(256));*/
-                setCycleTime(rnd.nextInt(40));
+                /*setCycleTime(rnd.nextInt(40));
                 
                 setPosition(rnd.nextInt(1000));
                 
@@ -133,7 +133,7 @@ public class VentanaP extends javax.swing.JFrame{
             }
         });
         
-        timer.start();
+        timer.start();*/
     }
     
     /**
@@ -230,7 +230,7 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel1.setFont(new java.awt.Font("Droid Sans", 0, 14)); // NOI18N
         jLabel1.setText("Constantes PID");
 
-        textFieldConstantesPID_P.setText("jTextField1");
+        textFieldConstantesPID_P.setText("2");
 
         jLabel2.setLabelFor(textFieldConstantesPID_P);
         jLabel2.setText("P");
@@ -241,9 +241,9 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel4.setLabelFor(textFieldConstantesPID_D);
         jLabel4.setText("D");
 
-        textFieldConstantesPID_I.setText("jTextField4");
+        textFieldConstantesPID_I.setText("4");
 
-        textFieldConstantesPID_D.setText("jTextField5");
+        textFieldConstantesPID_D.setText("6");
 
         buttonCPID_Cambiar.setText("Cambiar");
         buttonCPID_Cambiar.addActionListener(new java.awt.event.ActionListener() {
@@ -599,7 +599,7 @@ public class VentanaP extends javax.swing.JFrame{
 
         jLabel20.setText("No se encuentra conectado");
 
-        buttonOpciones.setText("Opciones");
+        buttonOpciones.setText("Opciones de datos");
         buttonOpciones.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonOpcionesActionPerformed(evt);
@@ -947,7 +947,7 @@ public class VentanaP extends javax.swing.JFrame{
     }//GEN-LAST:event_buttonStopActionPerformed
 
     private void buttonOpcionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOpcionesActionPerformed
-        int showOptionDialog = JOptionPane.showOptionDialog(this, "¿Qué desea hacer?",  "Opciones de Guardado/Recate", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] {"Guardar","Abrir","Ver"}, "Guardar");
+        int showOptionDialog = JOptionPane.showOptionDialog(this, "¿Qué desea hacer?",  "Opciones de Guardado/Recate", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] {"Guardar","Abrir","Ver","Reiniciar todo"}, "Guardar");
         System.out.println("Value: "+showOptionDialog);
         
         switch(showOptionDialog){
@@ -957,6 +957,29 @@ public class VentanaP extends javax.swing.JFrame{
                 break;
             case 1:break;
             case 2:break;
+            case 3:
+                
+                ultrasonidoList.clear();
+                encoderA2List.clear();
+                encoderA1List.clear();
+                encoderW1List.clear();
+                encoderW2List.clear();
+                this.PWMLList.clear();
+                this.PWMRList.clear();
+                this.positionList.clear();
+                this.cycleTimeList.clear();
+                this.comandosTecleados.clear();
+                this.proportionalFRobotList.clear();
+                this.derivativeFRobotList.clear();
+                this.integralFRobotList.clear();
+                this.plusValuesFRobotList.clear();
+                graficaEnc = null;
+                graficaPID = null;
+                graficaPWM = null;
+                graficaPos = null;
+                graficaUltra = null;
+                
+                break;
         }
     }//GEN-LAST:event_buttonOpcionesActionPerformed
     

@@ -51,7 +51,18 @@ public class ArchivoEscrituraData extends ArchivoEscritura{
             bufferEscritura.newLine();
             
             for (int i = 0; i < pl.size(); i++) {
-                bufferEscritura.write(pl.get(i)+" "+il.get(i)+" "+dl.get(i)+" "+sumapid.get(i)+" "+/*distancia.get(i)+" "*/+duty_time.get(i)+" "+pwmi.get(i)+" "+pwmd.get(i)+" "+ew1.get(i)+" "+ea1.get(i)+" "+ew2.get(i)+" "+ea2.get(i));
+                bufferEscritura.write(pl.get(i)+" ");
+                bufferEscritura.write(il.get(i)+" ");
+                bufferEscritura.write(dl.get(i)+" ");
+                bufferEscritura.write(sumapid.get(i)+" ");
+//                bufferEscritura.write(distancia.get(i)+" ");
+                bufferEscritura.write(duty_time.get(i)+" ");
+                bufferEscritura.write(pwmi.get(i)+" ");
+                bufferEscritura.write(pwmd.get(i)+" ");
+                bufferEscritura.write(ew1.get(i)+" ");
+                bufferEscritura.write(ea1.get(i)+" ");
+                bufferEscritura.write(ew2.get(i)+" ");
+                bufferEscritura.write(ea2.get(i)+" ");
                 bufferEscritura.newLine();
                 //P I D SUMA DISTANCIA TIEMPO_CICLO PWMI PWMD EW1 EA1 EW2 EA2
             }

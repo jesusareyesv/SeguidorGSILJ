@@ -16,7 +16,7 @@ double v_angular1,v_angular2,a_angular1,a_angular2;
 
 int clave = 1234;
 
-bool distancia_activo, infrarrojos_activos,
+bool distancia_activo, infrarrojos_activos;
 
 void setup(){
   Serial.begin(9600);

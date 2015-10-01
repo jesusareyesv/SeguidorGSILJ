@@ -1,7 +1,7 @@
 #define proportional_c 0.2
 #define integral_c 0.2
 #define derivative_c 0.2
-#define pinUltrasonido 2
+#define pinUltrasonido 7
 
 bool activo = false;
 int led = 13;
@@ -11,6 +11,7 @@ float D_const = derivative_c;
 double proportional, derivative, integral, suma;
 int PWMI,PWMD, DUTY_CYCLE,line_position,sensor_distancia;
 double v_angular1,v_angular2,a_angular1,a_angular2;
+long tciclo,tantes,tactual;
 
 int clave = 1234;
 
@@ -20,7 +21,10 @@ void setup(){
   Serial.begin(9600);
   Serial1.begin(9600);
   pinMode(led,OUTPUT);
+  pinMode(pinUltrasonido,INPUT);
   iniciarValores();
+  tactual = tantes = millis();
+  tciclo = 0;
 }
 
 void loop(){
@@ -41,7 +45,7 @@ void loop(){
     digitalWrite(led,HIGH);
     proportional = random(0,30);integral = random(0,30);derivative = random(0,30);
     suma = proportional + integral + derivative;
-    PWMI = random(0,256);PWMD = random(0,256);DUTY_CYCLE = random(0,56);
+    PWMI = random(0,256);PWMD = random(0,256);DUTY_CYCLE = tciclo;
     line_position=random(0,1000);sensor_distancia=(random(0,100) >=50)?1:0;
     v_angular1=random(0,256);v_angular2=random(0,256);
     a_angular1=random(0,256);a_angular2=random(0,256);
@@ -50,6 +54,9 @@ void loop(){
     //desactivar las interrupciones
     digitalWrite(led,LOW);
   }
+  tantes = tactual;
+  tactual = millis();
+  tciclo = tactual - tantes;
 }
 
 void iniciarValores(){
@@ -85,7 +92,7 @@ void communication_read(){
         D_const = Serial1.parseFloat();
 
         Serial1.print("message/Constantes cambiadas -> P=");Serial1.print(P_const);Serial1.print("/I=");Serial1.print(I_const);Serial1.print("/D=");Serial1.println(D_const);
-        Serial.print("message/Constantes cambiadas -> P=");Serial.print(P_const);Serial.print("/I=");Serial.print(I_const);Serial.print("/D=");Serial.println(D_const);
+        //Serial.print("message/Constantes cambiadas -> P=");Serial.print(P_const);Serial.print("/I=");Serial.print(I_const);Serial.print("/D=");Serial.println(D_const);
         break;
 
       case 'a'://activa sensores
@@ -99,21 +106,21 @@ void communication_read(){
         case 'k':
             clave = Serial1.parseInt();
             Serial1.print("message/Clave cambiada a:");Serial1.println(clave);
-            Serial.print("message/Clave cambiada a:");Serial.println(clave);
+            //Serial.print("message/Clave cambiada a:");Serial.println(clave);
           break;
         case 'e':
           String s = Serial1.readString();
           Serial1.print("message/ECHO=");Serial1.println(s);
-          Serial.print("message/ECHO=");Serial.println(s);
+          //Serial.print("message/ECHO=");Serial.println(s);
           break;
 
     }
-    Serial1.flush();
+    //Serial1.flush();
   }
 }
 
 void communication_write(){
-  Serial.print("data/");
+  /*Serial.print("data/");
   Serial.print(proportional);
   Serial.print("/");
   Serial.print(integral);
@@ -138,7 +145,7 @@ void communication_write(){
   Serial.print("/");
   Serial.print(a_angular1);
   Serial.print("/");
-  Serial.println(a_angular2);
+  Serial.println(a_angular2);*/
 
     Serial1.print("data/");
     Serial1.print(proportional);
@@ -179,8 +186,8 @@ void onOffSensors(bool estado){
       Serial1.print("message/Sensores infrarrojos ");
       Serial1.println((estado)?"activados":"desactivados");
 
-      Serial.print("message/Sensores infrarrojos ");
-      Serial.println((estado)?"activados":"desactivados");
+      //Serial.print("message/Sensores infrarrojos ");
+      //Serial.println((estado)?"activados":"desactivados");
     }
 
     if(temp == 2){
@@ -188,8 +195,8 @@ void onOffSensors(bool estado){
       Serial1.print("message/Sensor de distancia ");
       Serial1.println((estado)?"activado":"desactivado");
 
-      Serial.print("message/Sensor de distancia ");
-      Serial.println((estado)?"activado":"desactivado");
+      //Serial.print("message/Sensor de distancia ");
+      //Serial.println((estado)?"activado":"desactivado");
     }
   }
 }
