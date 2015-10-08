@@ -26,9 +26,14 @@
 
 /* Frecuencia de comunicacion serial */
 #define baudios 9600
+#define baudRate_const_bluetooth 9600
 
 #define num_sensores 8
 #define muestras_sensor 4
+
+//pin del led de control
+#define pin_led 13
+
 QTRSensorsAnalog qtra((unsigned char[]){0,1,2,3,4,5,6,7},num_sensores,muestras_sensor);
 unsigned valores_sensor[num_sensores];
 
@@ -52,6 +57,22 @@ namespace robot{
               int error;
               int err_ant;
 
+              double v_angular1, v_angular2;
+              double a_angular1, a_angular2;
+
+              /*PID*/
+              double proportional;
+              double integral;
+              double derivative;
+              double sumaPID;
+              long tiempo_ciclo;
+              long tiempo_antes;
+              long tiempo_actual;
+
+              /*comunicacion*/
+              bool activo;
+              bool infrarrojos_activos;
+              bool distancia_activo;
             public:
               nucleo(int v_base,int v_min,int v_max,int v_fre,int t_fre,float k_p,float k_d,float k_i,int cen);
               void inicializar();
@@ -63,6 +84,14 @@ namespace robot{
               int  encontro_obstaculo();
               void evadir_obstaculo();
               void run();
+
+              /*metodos comunicacion*/
+              void comunicacion_principal();
+              void setupCommunication();
+              void readComunicacion();
+              void writeComunicacion();
+              void onOffSensors(bool estado);
+              void status();
   };
 };
 #endif
