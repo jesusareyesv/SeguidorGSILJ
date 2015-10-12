@@ -126,8 +126,6 @@ void robot::nucleo::actualizar_velocidades(){
   constrain(vel_mot2,vel_min,vel_max);//mas fácil con esta func()
 
   /* Velocidad actualizada en pwm */
-
-
   analogWrite(pin_pwm_m1,vel_mot1);
   analogWrite(pin_pwm_m2,vel_mot2);
 }
@@ -192,13 +190,6 @@ void robot::nucleo::cambiar_sentido_motores(int M1,int M2){
       digitalWrite(direccion_backward_M2,HIGH);
       break;
   }
-}
-
-void robot::nucleo::emergency_stop(bool s){
-  if(s)
-    digitalWrite(pin_STANDBY,LOW);
-  else
-    digitalWrite(pin_STANDBY,HIGH);
 }
 
 //------------------------------------------------------------------------------------------------//

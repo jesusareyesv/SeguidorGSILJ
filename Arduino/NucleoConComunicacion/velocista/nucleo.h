@@ -111,7 +111,6 @@ namespace robot{
               void status();
 
               void cambiar_sentido_motores(int M1,int M2);
-              void emergency_stop();
   };
 };
 #endif
