@@ -1,0 +1,31 @@
+#######################################
+# Libreria para promedio
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+Seguidor	KEYWORD1
+#######################################
+# Métodos y funciones (KEYWORD2)
+#######################################
+  change_Direction                KEYWORD2
+  PID_processing                  KEYWORD2
+  adjust_velocities               KEYWORD2
+  set_SensorsValues_LinePosition  KEYWORD2
+  set_Positions_Encoders          KEYWORD2
+  calculate_angular_values        KEYWORD2
+  init                            KEYWORD2
+  emergency_stop                  KEYWORD2
+  frenoABS                        KEYWORD2
+  change_Velocity                 KEYWORD2
+  communication_principal         KEYWORD2
+  communication_Read              KEYWORD2
+  communication_Write             KEYWORD2
+  onOffSensors                    KEYWORD2
+  status                          KEYWORD2
+  runing_Seguidor                 KEYWORD2
+  isRobot_active                  KEYWORD2
+#######################################
+# Constants (LITERAL1)
+#######################################

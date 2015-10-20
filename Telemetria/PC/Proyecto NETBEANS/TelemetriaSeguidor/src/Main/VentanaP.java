@@ -43,6 +43,7 @@ public class VentanaP extends javax.swing.JFrame{
     protected String commandLineText = "";
     
     private BotCommunicatorTimer readerTimer;
+    
     private BotCommunicatorTimer writerTimer;
     private int consoleLineCounter;
     
@@ -54,8 +55,8 @@ public class VentanaP extends javax.swing.JFrame{
     
     private Random rnd = new Random();
     
-    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear"};
-    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola."};
+    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo", "change_pwm"};
+    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión.","Cambia los limites pwm del arduino. OPCIONES [pwmMinima,pwmMaxima,pwmFrenoABS]."};
     private String clave;
     
     /**
@@ -193,11 +194,14 @@ public class VentanaP extends javax.swing.JFrame{
         buttonConectar = new javax.swing.JButton();
         buttonDesconectar = new javax.swing.JButton();
         jLabel20 = new javax.swing.JLabel();
+        buttonOpciones = new javax.swing.JButton();
         panelConsola = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         textAreaCommandLine = new javax.swing.JTextArea();
         textFieldComando = new javax.swing.JTextField();
         buttonEnviar = new javax.swing.JButton();
+        buttonRun = new javax.swing.JButton();
+        buttonStop = new javax.swing.JButton();
         panelUltrasonido = new javax.swing.JPanel();
         textFieldUltrasonido = new javax.swing.JTextField();
         jLabel21 = new javax.swing.JLabel();
@@ -226,7 +230,7 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel1.setFont(new java.awt.Font("Droid Sans", 0, 14)); // NOI18N
         jLabel1.setText("Constantes PID");
 
-        textFieldConstantesPID_P.setText("jTextField1");
+        textFieldConstantesPID_P.setText("2");
 
         jLabel2.setLabelFor(textFieldConstantesPID_P);
         jLabel2.setText("P");
@@ -237,9 +241,9 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel4.setLabelFor(textFieldConstantesPID_D);
         jLabel4.setText("D");
 
-        textFieldConstantesPID_I.setText("jTextField4");
+        textFieldConstantesPID_I.setText("4");
 
-        textFieldConstantesPID_D.setText("jTextField5");
+        textFieldConstantesPID_D.setText("6");
 
         buttonCPID_Cambiar.setText("Cambiar");
         buttonCPID_Cambiar.addActionListener(new java.awt.event.ActionListener() {
@@ -357,8 +361,8 @@ public class VentanaP extends javax.swing.JFrame{
                                 .addGroup(panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(textFieldPWMI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(textFieldPWMD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 10, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(10, 10, 10))
         );
         panelPWMLayout.setVerticalGroup(
             panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -390,8 +394,8 @@ public class VentanaP extends javax.swing.JFrame{
                 .addContainerGap())
         );
 
-        sliderPosicion.setMaximum(1000);
-        sliderPosicion.setValue(500);
+        sliderPosicion.setMaximum(5000);
+        sliderPosicion.setValue(2500);
         sliderPosicion.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 sliderPosicionMouseClicked(evt);
@@ -403,13 +407,13 @@ public class VentanaP extends javax.swing.JFrame{
 
         jLabel8.setText("Encoders");
 
-        textFieldEncodersA1.setText("jTextField6");
+        textFieldEncodersA1.setText("a_angular1");
 
-        textFieldEncodersB1.setText("jTextField7");
+        textFieldEncodersB1.setText("v_angular1");
 
-        textFieldEncodersA2.setText("jTextField8");
+        textFieldEncodersA2.setText("a_angular2");
 
-        textFieldEncodersB2.setText("jTextField9");
+        textFieldEncodersB2.setText("v_angular2");
 
         jLabel9.setText("a1");
 
@@ -478,7 +482,7 @@ public class VentanaP extends javax.swing.JFrame{
                     .addComponent(textFieldEncodersB2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11)
                     .addComponent(jLabel12))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(buttonGraficaEncoders)
                 .addContainerGap())
         );
@@ -490,7 +494,7 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel14.setFont(new java.awt.Font("Droid Sans", 0, 14)); // NOI18N
         jLabel14.setText("Proceso PID");
 
-        textFieldPPID_P.setText("jTextField1");
+        textFieldPPID_P.setText("Proporcional");
 
         jLabel15.setLabelFor(textFieldConstantesPID_P);
         jLabel15.setText("P");
@@ -501,11 +505,16 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel17.setLabelFor(textFieldConstantesPID_D);
         jLabel17.setText("D");
 
-        textFieldPPID_I.setText("jTextField4");
+        textFieldPPID_I.setText("Integral");
 
-        textFieldPPID_D.setText("jTextField5");
+        textFieldPPID_D.setText("Derivativo");
 
-        textFieldPPID_Suma.setText("jTextField5");
+        textFieldPPID_Suma.setText("Juntos");
+        textFieldPPID_Suma.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textFieldPPID_SumaActionPerformed(evt);
+            }
+        });
 
         jLabel18.setLabelFor(textFieldConstantesPID_D);
         jLabel18.setText("Suma");
@@ -524,26 +533,23 @@ public class VentanaP extends javax.swing.JFrame{
             .addGroup(panelProcesoPIDLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelProcesoPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(buttonGraficaPID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel14)
                     .addGroup(panelProcesoPIDLayout.createSequentialGroup()
                         .addGroup(panelProcesoPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel14)
                             .addGroup(panelProcesoPIDLayout.createSequentialGroup()
                                 .addGap(12, 12, 12)
                                 .addGroup(panelProcesoPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(jLabel16)
                                     .addComponent(jLabel15)
-                                    .addComponent(jLabel17))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(panelProcesoPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(textFieldPPID_P, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(textFieldPPID_I, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(textFieldPPID_D, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(buttonGraficaPID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProcesoPIDLayout.createSequentialGroup()
-                        .addComponent(jLabel18)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(textFieldPPID_Suma, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(jLabel17)))
+                            .addComponent(jLabel18))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(panelProcesoPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(textFieldPPID_Suma)
+                            .addComponent(textFieldPPID_D)
+                            .addComponent(textFieldPPID_I)
+                            .addComponent(textFieldPPID_P))))
                 .addContainerGap())
         );
         panelProcesoPIDLayout.setVerticalGroup(
@@ -593,6 +599,13 @@ public class VentanaP extends javax.swing.JFrame{
 
         jLabel20.setText("No se encuentra conectado");
 
+        buttonOpciones.setText("Opciones de datos");
+        buttonOpciones.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonOpcionesActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelConexionLayout = new javax.swing.GroupLayout(panelConexion);
         panelConexion.setLayout(panelConexionLayout);
         panelConexionLayout.setHorizontalGroup(
@@ -600,15 +613,16 @@ public class VentanaP extends javax.swing.JFrame{
             .addGroup(panelConexionLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(buttonOpciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(panelConexionLayout.createSequentialGroup()
+                        .addComponent(buttonConectar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(buttonDesconectar))
                     .addGroup(panelConexionLayout.createSequentialGroup()
                         .addGroup(panelConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel19)
                             .addComponent(jLabel20))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(panelConexionLayout.createSequentialGroup()
-                        .addComponent(buttonConectar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(buttonDesconectar)))
+                        .addGap(0, 32, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelConexionLayout.setVerticalGroup(
@@ -616,13 +630,15 @@ public class VentanaP extends javax.swing.JFrame{
             .addGroup(panelConexionLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel19)
-                .addGap(38, 38, 38)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
                 .addGroup(panelConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonConectar)
                     .addComponent(buttonDesconectar))
-                .addGap(18, 18, 18)
+                .addGap(12, 12, 12)
                 .addComponent(jLabel20)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(buttonOpciones)
+                .addContainerGap())
         );
 
         panelConsola.setBackground(new java.awt.Color(175, 221, 248));
@@ -646,15 +662,38 @@ public class VentanaP extends javax.swing.JFrame{
             }
         });
 
+        buttonRun.setBackground(new java.awt.Color(101, 227, 18));
+        buttonRun.setText("Run Forest!!! Ruuuun!!!!");
+        buttonRun.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonRunActionPerformed(evt);
+            }
+        });
+
+        buttonStop.setBackground(new java.awt.Color(242, 17, 17));
+        buttonStop.setForeground(new java.awt.Color(255, 255, 255));
+        buttonStop.setText("Bájale a tu ki");
+        buttonStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonStopActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelConsolaLayout = new javax.swing.GroupLayout(panelConsola);
         panelConsola.setLayout(panelConsolaLayout);
         panelConsolaLayout.setHorizontalGroup(
             panelConsolaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelConsolaLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(textFieldComando, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonEnviar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(panelConsolaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelConsolaLayout.createSequentialGroup()
+                        .addComponent(textFieldComando, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonEnviar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(panelConsolaLayout.createSequentialGroup()
+                        .addComponent(buttonRun, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonStop, javax.swing.GroupLayout.PREFERRED_SIZE, 333, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
             .addGroup(panelConsolaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(panelConsolaLayout.createSequentialGroup()
@@ -665,22 +704,26 @@ public class VentanaP extends javax.swing.JFrame{
         panelConsolaLayout.setVerticalGroup(
             panelConsolaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelConsolaLayout.createSequentialGroup()
-                .addContainerGap(153, Short.MAX_VALUE)
+                .addContainerGap(112, Short.MAX_VALUE)
                 .addGroup(panelConsolaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textFieldComando, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonEnviar))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelConsolaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonRun)
+                    .addComponent(buttonStop))
+                .addGap(22, 22, 22))
             .addGroup(panelConsolaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(panelConsolaLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(45, Short.MAX_VALUE)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(95, Short.MAX_VALUE)))
         );
 
         panelUltrasonido.setBackground(new java.awt.Color(175, 221, 248));
         panelUltrasonido.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        textFieldUltrasonido.setText("jTextField1");
+        textFieldUltrasonido.setText("Why?");
 
         jLabel21.setText("Sensor ultrasónico");
 
@@ -696,7 +739,7 @@ public class VentanaP extends javax.swing.JFrame{
         panelUltrasonidoLayout.setHorizontalGroup(
             panelUltrasonidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelUltrasonidoLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(72, Short.MAX_VALUE)
                 .addComponent(textFieldUltrasonido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(59, 59, 59))
             .addGroup(panelUltrasonidoLayout.createSequentialGroup()
@@ -728,43 +771,42 @@ public class VentanaP extends javax.swing.JFrame{
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(panelConsola, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(sliderPosicion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(sliderPosicion, javax.swing.GroupLayout.PREFERRED_SIZE, 622, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(panelEncoders, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(panelUltrasonido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(panelConexion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(panelConstantesPID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(panelPWM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(panelProcesoPID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(panelEncoders, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(panelUltrasonido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(panelConstantesPID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(panelPWM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(panelProcesoPID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(panelConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(1, 1, 1)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(sliderPosicion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(panelConstantesPID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelPWM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelProcesoPID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelConstantesPID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(panelProcesoPID, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(panelEncoders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelUltrasonido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(panelConexion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelConsola, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         pack();
@@ -797,6 +839,7 @@ public class VentanaP extends javax.swing.JFrame{
             jLabel20.setText(communicator.getPuertoSeleccionado());
             setCommandLineText("Message: Conectado satisfactoriamente al puerto serial.");
             this.getContentPane().setBackground(Color.cyan);
+            putComando("echo Estoy vivo");
         }else{
             setCommandLineText("ERROR: Ocurrió un error al tratar de conectarse al puerto serial.");
         } 
@@ -832,13 +875,13 @@ public class VentanaP extends javax.swing.JFrame{
     }//GEN-LAST:event_buttonGraficaPIDActionPerformed
 
     private void buttonEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonEnviarActionPerformed
-        putComando();
+        putComando(textFieldComando.getText());
     }//GEN-LAST:event_buttonEnviarActionPerformed
 
     private void textFieldComandoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textFieldComandoKeyReleased
         boolean band = false;
         if(evt.getKeyCode() == KeyEvent.VK_ENTER)
-            putComando();
+            putComando(textFieldComando.getText());
         else{
             if(comandosTecleados.size() > 0){
                 if(evt.getKeyCode() == KeyEvent.VK_UP){
@@ -890,9 +933,57 @@ public class VentanaP extends javax.swing.JFrame{
         else
             graficaEnc.mostrarGrafica();
     }//GEN-LAST:event_buttonGraficaEncodersActionPerformed
+
+    private void textFieldPPID_SumaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textFieldPPID_SumaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textFieldPPID_SumaActionPerformed
+
+    private void buttonRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRunActionPerformed
+        putComando("run");
+    }//GEN-LAST:event_buttonRunActionPerformed
+
+    private void buttonStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStopActionPerformed
+        putComando("stop");
+    }//GEN-LAST:event_buttonStopActionPerformed
+
+    private void buttonOpcionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOpcionesActionPerformed
+        int showOptionDialog = JOptionPane.showOptionDialog(this, "¿Qué desea hacer?",  "Opciones de Guardado/Recate", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] {"Guardar","Abrir","Ver","Reiniciar todo"}, "Guardar");
+        System.out.println("Value: "+showOptionDialog);
+        
+        switch(showOptionDialog){
+            case 0:
+                new Archivos.ArchivoEscrituraConfiguracion("Hola", Double.parseDouble(this.textFieldConstantesPID_P.getText()), Double.parseDouble(this.textFieldConstantesPID_I.getText()), Double.parseDouble(this.textFieldConstantesPID_D.getText()), 1, 0);
+                new Archivos.ArchivoEscrituraData("data", this.proportionalFRobotList, this.integralFRobotList, this.derivativeFRobotList, this.plusValuesFRobotList, this.encoderW1List, this.encoderW2List, this.encoderA1List, this.encoderA2List, this.PWMLList, this.PWMRList, this.positionList, null, cycleTimeList);
+                break;
+            case 1:break;
+            case 2:break;
+            case 3:
+                
+                ultrasonidoList.clear();
+                encoderA2List.clear();
+                encoderA1List.clear();
+                encoderW1List.clear();
+                encoderW2List.clear();
+                this.PWMLList.clear();
+                this.PWMRList.clear();
+                this.positionList.clear();
+                this.cycleTimeList.clear();
+                this.comandosTecleados.clear();
+                this.proportionalFRobotList.clear();
+                this.derivativeFRobotList.clear();
+                this.integralFRobotList.clear();
+                this.plusValuesFRobotList.clear();
+                graficaEnc = null;
+                graficaPID = null;
+                graficaPWM = null;
+                graficaPos = null;
+                graficaUltra = null;
+                
+                break;
+        }
+    }//GEN-LAST:event_buttonOpcionesActionPerformed
     
-    private void putComando(){
-        String comando = textFieldComando.getText();
+    private void putComando(String comando){
         
         comandosTecleados.add(comando);
         setCommandLineText("**COMANDO**: " + comando);
@@ -908,11 +999,11 @@ public class VentanaP extends javax.swing.JFrame{
             
                 for (int i = 1; i < partes.length; i++) {
                     if(partes[i].compareToIgnoreCase("infra") == 0){
-                        sensores += "/i";
+                        sensores += "/1";
                         cValidos++;
                     }else{
                         if(partes[i].compareToIgnoreCase("ultra") == 0){
-                            sensores += "/u";
+                            sensores += "/2";
                             cValidos++;
                         }else{
                             setCommandLineText("\tLa opcion "+partes[i]+" no fue encontrada dentro del comando.");
@@ -956,7 +1047,7 @@ public class VentanaP extends javax.swing.JFrame{
                 break;
             case 5:
                 if(cValidos > 0){
-                    //writeToDataStream(clave+"/a/"+(cValidos)+sensores);
+                    writeToDataStream(clave+"/a/"+(cValidos)+sensores);
                     setCommandLineText("\t**Activando sensores: "+sensores);
                 }else
                     setCommandLineText("\t**Error de sintaxis.");
@@ -964,7 +1055,7 @@ public class VentanaP extends javax.swing.JFrame{
                 break;
             case 6: 
                 if(cValidos > 0){
-                    //writeToDataStream(clave+"/d/"+(cValidos)+sensores);
+                    writeToDataStream(clave+"/d/"+(cValidos)+sensores);
                     setCommandLineText("\t**Desactivando sensores: "+sensores);
                 }else
                     setCommandLineText("\t**Error de sintaxis.");
@@ -992,6 +1083,11 @@ public class VentanaP extends javax.swing.JFrame{
                 this.textAreaCommandLine.setText("");
                 this.commandLineText="";
                 break;
+            case 9:
+                writeToDataStream("e/"+comando.substring(5));
+                break;
+            case 10:
+                writeToDataStream("C/"+comando.substring(5));
             default:
                 setCommandLineText("El comando \""+comando+"\" no fue encontrado.");
                 break;
@@ -1252,7 +1348,7 @@ public class VentanaP extends javax.swing.JFrame{
                                 setPosition(Integer.parseInt(cadenas[8]));
                                 processingDataDistanceSensor(cadenas[9]);
                                 setEncoderW1(Double.parseDouble(cadenas[10]));
-                                setEncoderW1(Double.parseDouble(cadenas[11]));
+                                setEncoderW2(Double.parseDouble(cadenas[11]));
                                 setEncoderA1(Double.parseDouble(cadenas[12]));
                                 setEncoderA2(Double.parseDouble(cadenas[13]));
 
@@ -1274,8 +1370,25 @@ public class VentanaP extends javax.swing.JFrame{
                                 setCommandLineText("\nERROR! Problema al convertir data entrante desde el InputStream en valores numéricos.\n");
                             }
                         else
-                            if(cadenas[0].compareToIgnoreCase("status") == 0)
+                            if(cadenas[0].compareToIgnoreCase("status") == 0){
                                 System.out.println("status");
+                                String mensaje = "STATUS\n\n* Sensores infrarrojos ";
+                                
+                                if(Integer.parseInt(cadenas[1]) == 1){
+                                    mensaje += "activos";
+                                }else
+                                    mensaje += "inactivos";
+                                
+                                mensaje += ".\n* Sensor de distancia ";
+                                if(Integer.parseInt(cadenas[2]) == 1)
+                                    mensaje += "activo";
+                                else
+                                    mensaje += "inactivo";
+                                
+                                mensaje += ".";
+                                            
+                                JOptionPane.showMessageDialog(this, mensaje, "STATUS DEL ROBOT!!!", JOptionPane.INFORMATION_MESSAGE);
+                            }
                     
                     setCommandLineText(consoleLineCounter+")"+incoming);
                     consoleLineCounter++;
@@ -1351,6 +1464,9 @@ public class VentanaP extends javax.swing.JFrame{
     private javax.swing.JButton buttonGraficaPID;
     private javax.swing.JButton buttonGraficaPWM;
     private javax.swing.JButton buttonGraficaUltrasonido;
+    private javax.swing.JButton buttonOpciones;
+    private javax.swing.JButton buttonRun;
+    private javax.swing.JButton buttonStop;
     private javax.swing.JInternalFrame jInternalFrame1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
