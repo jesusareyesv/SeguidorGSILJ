@@ -390,8 +390,8 @@
     </Container>
     <Component class="javax.swing.JSlider" name="sliderPosicion">
       <Properties>
-        <Property name="maximum" type="int" value="1000"/>
-        <Property name="value" type="int" value="500"/>
+        <Property name="maximum" type="int" value="5000"/>
+        <Property name="value" type="int" value="2500"/>
       </Properties>
       <Events>
         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="sliderPosicionMouseClicked"/>
@@ -489,22 +489,22 @@
         </Component>
         <Component class="javax.swing.JTextField" name="textFieldEncodersA1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField6"/>
+            <Property name="text" type="java.lang.String" value="a_angular1"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="textFieldEncodersB1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField7"/>
+            <Property name="text" type="java.lang.String" value="v_angular1"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="textFieldEncodersA2">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField8"/>
+            <Property name="text" type="java.lang.String" value="a_angular2"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="textFieldEncodersB2">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField9"/>
+            <Property name="text" type="java.lang.String" value="v_angular2"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel9">
@@ -626,7 +626,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="textFieldPPID_P">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField1"/>
+            <Property name="text" type="java.lang.String" value="Proporcional"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel15">
@@ -655,17 +655,17 @@
         </Component>
         <Component class="javax.swing.JTextField" name="textFieldPPID_I">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField4"/>
+            <Property name="text" type="java.lang.String" value="Integral"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="textFieldPPID_D">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField5"/>
+            <Property name="text" type="java.lang.String" value="Derivativo"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="textFieldPPID_Suma">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField5"/>
+            <Property name="text" type="java.lang.String" value="Juntos"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textFieldPPID_SumaActionPerformed"/>
@@ -718,7 +718,7 @@
                               <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel20" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="0" pref="24" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="32" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -953,7 +953,7 @@
       <SubComponents>
         <Component class="javax.swing.JTextField" name="textFieldUltrasonido">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField1"/>
+            <Property name="text" type="java.lang.String" value="Why?"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel21">
