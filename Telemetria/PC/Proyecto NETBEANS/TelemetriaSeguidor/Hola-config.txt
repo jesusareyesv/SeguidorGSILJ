@@ -1,4 +1,4 @@
-Archivo de configuracion. Thu Oct 01 16:36:46 VET 2015
+Archivo de configuracion. Tue Oct 20 16:19:55 VET 2015
 2.0/P
 4.0/I
 6.0/D

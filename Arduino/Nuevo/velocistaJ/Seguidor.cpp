@@ -10,7 +10,7 @@ Seguidor::Seguidor(double kp,double ki,double kd){
 }
 
 void Seguidor::init(){
-  Serial.begin(baud_rate_Serial);
+  //Serial.begin(baud_rate_Serial);
   Serial1.begin(baud_rate_Bluetooth);
   pinMode(direction_forward_M1_pin,OUTPUT);
   pinMode(direction_forward_M2_pin,OUTPUT);
@@ -25,7 +25,12 @@ void Seguidor::init(){
   pinMode(encoderB1_pin,INPUT);
   pinMode(encoderB2_pin,INPUT);*/
 
-  infrarred_active = distance_active = robot_active = true;
+  PWM_MIN = pwm_min;
+  PWM_MAX = pwm_max;
+  PWM_ABS = pwm_ABS;
+
+  infrarred_active = distance_active = true;
+  robot_active = false;
   digitalWrite(stby_pin,HIGH);
 //  t_inicio = millis();
 //  t_anterior = t_actual = millis();
@@ -49,9 +54,12 @@ void Seguidor::runing_Seguidor(){
       this->calculate_angular_values();
       encoders_time = actual_time;
     }
-    
-    //PID_processing();
+
+    PID_processing();
     adjust_velocities();
+  }else{
+    change_Velocity(0,0);
+    change_Direction(0,0);
   }
 
   actual_time = millis();
@@ -109,7 +117,7 @@ void Seguidor::PID_processing(){
 }
 
 void Seguidor::adjust_velocities(){
-  pwmM1 = pwmM2 = pwm_max;
+  //pwmM1 = pwmM2 = pwm_max;
   change_Velocity(pwmM1,pwmM2);
   change_Direction(1,1);
 }
@@ -181,7 +189,7 @@ void Seguidor::emergency_stop(){
 
 void Seguidor::frenoABS(int times){
   for(int i = 0; i < times; i++){
-    change_Velocity(pwm_ABS,pwm_ABS);
+    change_Velocity(pwm_ABS,PWM_ABS);
     delay(20);
     change_Direction(-1,-1);
 		delay(30);
@@ -193,8 +201,8 @@ void Seguidor::frenoABS(int times){
 void Seguidor::change_Velocity(int vm1, int vm2){
   change_Direction(0,0);
 
-  constrain(vm1,pwm_min,pwm_max);
-  constrain(vm2,pwm_min,pwm_max);
+  vm1 = constrain(vm1,PWM_MIN,PWM_MAX);
+  vm2 = constrain(vm2,PWM_MIN,PWM_MAX);
 
   analogWrite(pwmM1_pin,vm1);
   analogWrite(pwmM2_pin,vm2);
@@ -244,10 +252,19 @@ void Seguidor::communication_Read(){
             //Serial1.print("message/Clave cambiada a:");Serial1.println(clave);
             //Serial.print("message/Clave cambiada a:");Serial.println(clave);
           break;
+
+        case 'C':
+          PWM_MIN = Serial1.parseInt();
+          PWM_MAX = Serial1.parseInt();
+          PWM_ABS = Serial1.parseInt();
+
+          Serial1.print("message/PWM Cambiado -> Min=");Serial1.print(PWM_MIN);Serial1.print("/Max=");Serial1.print(PWM_MAX);Serial1.print("/D=");Serial1.println(PWM_ABS);
+          break;
+          
         case 'e':
-          String s = Serial1.readString();
-          Serial1.print("message/ECHO=");Serial1.println(s);
-          //Serial.print("message/ECHO=");Serial.println(s);
+          String sssss = Serial1.readString();
+          Serial1.print("message/ECHO=");Serial1.println(sssss);
+          //Serial.print("message/ECHO=");Serial.println(sssss);
           break;
 
     }
@@ -256,7 +273,7 @@ void Seguidor::communication_Read(){
 }
 
 void Seguidor::communication_Write(){
-  Serial.println(error);
+  /*Serial.println(error);
   Serial.print("data/");
   Serial.print(proportional);Serial.print("   ");
   Serial.print("/");
@@ -283,7 +300,7 @@ void Seguidor::communication_Write(){
   Serial.print(a_angular_M1);
   Serial.print("/");
   Serial.println(a_angular_M2);
-  Serial.println();Serial.println();Serial.println();
+  Serial.println();Serial.println();Serial.println();*/
 
   Serial1.print("data/");
       Serial1.print(proportional);

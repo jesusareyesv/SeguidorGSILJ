@@ -55,7 +55,7 @@ public class VentanaP extends javax.swing.JFrame{
     
     private Random rnd = new Random();
     
-    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo", "change_pwm"};
+    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo","change_pwm"};
     public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión.","Cambia los limites pwm del arduino. OPCIONES [pwmMinima,pwmMaxima,pwmFrenoABS]."};
     private String clave;
     
@@ -1087,7 +1087,9 @@ public class VentanaP extends javax.swing.JFrame{
                 writeToDataStream("e/"+comando.substring(5));
                 break;
             case 10:
-                writeToDataStream("C/"+comando.substring(5));
+                writeToDataStream("C/"+partes[1]);
+                setCommandLineText("PWM cambiado");
+                break;
             default:
                 setCommandLineText("El comando \""+comando+"\" no fue encontrado.");
                 break;

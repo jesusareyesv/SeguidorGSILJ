@@ -7,17 +7,17 @@
 #define baud_rate_Serial 9600
 #define baud_rate_Bluetooth 9600
 
-#define pwmM1_pin 11
-#define pwmM2_pin 10
+#define pwmM1_pin 10
+#define pwmM2_pin 11
 
 #define pwm_min 0
 #define pwm_max 120
 #define pwm_ABS 160
 
-#define direction_forward_M1_pin 6
-#define direction_backward_M1_pin 5
-#define direction_forward_M2_pin 8
-#define direction_backward_M2_pin 7
+#define direction_forward_M1_pin 8
+#define direction_backward_M1_pin 7
+#define direction_forward_M2_pin 6
+#define direction_backward_M2_pin 5
 
 #define bypass_time_encoders 100
 
@@ -38,7 +38,7 @@ class Seguidor{
     //long position1 = -999;
     //long position2 = -999;
     /*Variables Agregadas*/
-    int pwmM1, pwmM2;
+    int pwmM1, pwmM2, PWM_MIN,PWM_MAX, PWM_ABS;
     bool forward_M1, backward_M1, forward_M2, backward_M2;
 
     long position_encoder_M1, position_encoder_antes_M1;
