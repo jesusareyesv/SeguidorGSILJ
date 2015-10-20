@@ -49,8 +49,8 @@ void Seguidor::runing_Seguidor(){
       this->calculate_angular_values();
       encoders_time = actual_time;
     }
-
-    PID_processing();
+    
+    //PID_processing();
     adjust_velocities();
   }
 
@@ -92,7 +92,8 @@ void Seguidor::change_Direction(int M1,int M2){
 }
 
 void Seguidor::PID_processing(){
-  error = line_position - desired_position;
+  Serial.print("Desired");Serial.println();
+  error = double(line_position) - double(desired_position);
 
   /*Los separé para control*/
   proportional = k_P * error;
@@ -102,12 +103,13 @@ void Seguidor::PID_processing(){
   sumaPID = proportional + derivative + integral;
   Serial.print("P:");Serial.print(proportional);Serial.print("D: ");Serial.println(derivative);
   error_antes   = error;
-  pwmM1  = pwm_min - sumaPID;
-  pwmM2  = pwm_min + sumaPID;
+  pwmM1  = pwm_min + sumaPID;
+  pwmM2  = pwm_min - sumaPID;
   Serial.print("pwm1: ");Serial.print(pwmM1);Serial.print(" pwm2: ");Serial.println(pwmM2);
 }
 
 void Seguidor::adjust_velocities(){
+  pwmM1 = pwmM2 = pwm_max;
   change_Velocity(pwmM1,pwmM2);
   change_Direction(1,1);
 }
@@ -254,32 +256,61 @@ void Seguidor::communication_Read(){
 }
 
 void Seguidor::communication_Write(){
+  Serial.println(error);
+  Serial.print("data/");
+  Serial.print(proportional);Serial.print("   ");
+  Serial.print("/");
+  Serial.print(integral);Serial.print("   ");
+  Serial.print("/");
+  Serial.print(derivative);Serial.print("   ");
+  Serial.print("/");
+  Serial.print(sumaPID);Serial.println();
+  Serial.print("/");
+  Serial.print(pwmM1);Serial.print("   ");//Serial1.print(PWMI);
+  Serial.print("/");
+  Serial.print(pwmM2);Serial.print("   ");//Serial1.print(PWMD);
+  Serial.print("/");
+  Serial.print(loop_time);Serial.println();
+  Serial.print("/");
+  Serial.print(line_position);Serial.println();//posicion de la linea
+  Serial.print("/");
+  Serial.print(distance_sensor);//(1) si obstaculo, (0) si no
+  Serial.print("/");
+  Serial.print(v_angular_M1);
+  Serial.print("/");
+  Serial.print(v_angular_M2);
+  Serial.print("/");
+  Serial.print(a_angular_M1);
+  Serial.print("/");
+  Serial.println(a_angular_M2);
+  Serial.println();Serial.println();Serial.println();
+
   Serial1.print("data/");
-  Serial1.print(proportional);
-  Serial1.print("/");
-  Serial1.print(integral);
-  Serial1.print("/");
-  Serial1.print(derivative);
-  Serial1.print("/");
-  Serial1.print(sumaPID);
-  Serial1.print("/");
-  Serial1.print(pwmM1);//Serial1.print(PWMI);
-  Serial1.print("/");
-  Serial1.print(pwmM2);//Serial1.print(PWMD);
-  Serial1.print("/");
-  Serial1.print(loop_time);
-  Serial1.print("/");
-  Serial1.print(line_position);//posicion de la linea
-  Serial1.print("/");
-  Serial1.print(distance_sensor);//(1) si obstaculo, (0) si no
-  Serial1.print("/");
-  Serial1.print(v_angular_M1);
-  Serial1.print("/");
-  Serial1.print(v_angular_M2);
-  Serial1.print("/");
-  Serial1.print(a_angular_M1);
-  Serial1.print("/");
-  Serial1.println(a_angular_M2);
+      Serial1.print(proportional);
+      Serial1.print("/");
+      Serial1.print(integral);
+      Serial1.print("/");
+      Serial1.print(derivative);
+      Serial1.print("/");
+      Serial1.print(sumaPID);
+      Serial1.print("/");
+      Serial1.print(pwmM1);//Serial1.print(PWMI);
+      Serial1.print("/");
+      Serial1.print(pwmM2);//Serial1.print(PWMD);
+      Serial1.print("/");
+      Serial1.print(loop_time);
+      Serial1.print("/");
+      Serial1.print(line_position);//posicion de la linea
+      Serial1.print("/");
+      Serial1.print(distance_sensor);//(1) si obstaculo, (0) si no
+      Serial1.print("/");
+      Serial1.print(v_angular_M1);
+      Serial1.print("/");
+      Serial1.print(v_angular_M2);
+      Serial1.print("/");
+      Serial1.print(a_angular_M1);
+      Serial1.print("/");
+      Serial1.println(a_angular_M2);
 }
 
 void Seguidor::onOffSensors(bool estado){

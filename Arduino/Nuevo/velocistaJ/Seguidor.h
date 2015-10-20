@@ -10,7 +10,7 @@
 #define pwmM1_pin 11
 #define pwmM2_pin 10
 
-#define pwm_min 40
+#define pwm_min 0
 #define pwm_max 120
 #define pwm_ABS 160
 
