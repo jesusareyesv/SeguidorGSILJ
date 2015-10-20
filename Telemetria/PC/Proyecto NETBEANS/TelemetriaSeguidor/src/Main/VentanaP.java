@@ -55,8 +55,8 @@ public class VentanaP extends javax.swing.JFrame{
     
     private Random rnd = new Random();
     
-    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo"};
-    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión."};
+    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo", "change_pwm"};
+    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión.","Cambia los limites pwm del arduino. OPCIONES [pwmMinima,pwmMaxima,pwmFrenoABS]."};
     private String clave;
     
     /**
@@ -394,8 +394,8 @@ public class VentanaP extends javax.swing.JFrame{
                 .addContainerGap())
         );
 
-        sliderPosicion.setMaximum(1000);
-        sliderPosicion.setValue(500);
+        sliderPosicion.setMaximum(5000);
+        sliderPosicion.setValue(2500);
         sliderPosicion.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 sliderPosicionMouseClicked(evt);
@@ -407,13 +407,13 @@ public class VentanaP extends javax.swing.JFrame{
 
         jLabel8.setText("Encoders");
 
-        textFieldEncodersA1.setText("jTextField6");
+        textFieldEncodersA1.setText("a_angular1");
 
-        textFieldEncodersB1.setText("jTextField7");
+        textFieldEncodersB1.setText("v_angular1");
 
-        textFieldEncodersA2.setText("jTextField8");
+        textFieldEncodersA2.setText("a_angular2");
 
-        textFieldEncodersB2.setText("jTextField9");
+        textFieldEncodersB2.setText("v_angular2");
 
         jLabel9.setText("a1");
 
@@ -494,7 +494,7 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel14.setFont(new java.awt.Font("Droid Sans", 0, 14)); // NOI18N
         jLabel14.setText("Proceso PID");
 
-        textFieldPPID_P.setText("jTextField1");
+        textFieldPPID_P.setText("Proporcional");
 
         jLabel15.setLabelFor(textFieldConstantesPID_P);
         jLabel15.setText("P");
@@ -505,11 +505,11 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel17.setLabelFor(textFieldConstantesPID_D);
         jLabel17.setText("D");
 
-        textFieldPPID_I.setText("jTextField4");
+        textFieldPPID_I.setText("Integral");
 
-        textFieldPPID_D.setText("jTextField5");
+        textFieldPPID_D.setText("Derivativo");
 
-        textFieldPPID_Suma.setText("jTextField5");
+        textFieldPPID_Suma.setText("Juntos");
         textFieldPPID_Suma.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 textFieldPPID_SumaActionPerformed(evt);
@@ -622,7 +622,7 @@ public class VentanaP extends javax.swing.JFrame{
                         .addGroup(panelConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel19)
                             .addComponent(jLabel20))
-                        .addGap(0, 24, Short.MAX_VALUE)))
+                        .addGap(0, 32, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelConexionLayout.setVerticalGroup(
@@ -723,7 +723,7 @@ public class VentanaP extends javax.swing.JFrame{
         panelUltrasonido.setBackground(new java.awt.Color(175, 221, 248));
         panelUltrasonido.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        textFieldUltrasonido.setText("jTextField1");
+        textFieldUltrasonido.setText("Why?");
 
         jLabel21.setText("Sensor ultrasónico");
 
@@ -1086,6 +1086,8 @@ public class VentanaP extends javax.swing.JFrame{
             case 9:
                 writeToDataStream("e/"+comando.substring(5));
                 break;
+            case 10:
+                writeToDataStream("C/"+comando.substring(5));
             default:
                 setCommandLineText("El comando \""+comando+"\" no fue encontrado.");
                 break;
