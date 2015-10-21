@@ -53,6 +53,8 @@ public class VentanaP extends javax.swing.JFrame{
     private static GraficaUltrasonido graficaUltra = null;
     private static GraficaEncoders graficaEnc = null;
     
+    public Timer timer;
+    
     private Random rnd = new Random();
     
     public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo","change_pwm"};
@@ -95,21 +97,22 @@ public class VentanaP extends javax.swing.JFrame{
         encoderA1=encoderA2=encoderW1=encoderW2=0;
 
         
-        /*Timer timer = new Timer(100, new ActionListener() {
+        timer = new Timer(30, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 setPWMLeft(((getPWMLeft() <= 100)?1:-1)*rnd.nextInt(60)+getPWMLeft());
                 setPWMRight(((getPWMRight()<= 100)?1:-1)*rnd.nextInt(60)+getPWMRight());
                 /*setPWMLeft(rnd.nextInt(256));
-                setPWMRight(rnd.nextInt(256));*/
-                /*setCycleTime(rnd.nextInt(40));
+                setPWMRight(rnd.nextInt(256));**/
+                setCycleTime(rnd.nextInt(40));
                 
                 setPosition(rnd.nextInt(1000));
                 
                 setDerivativeFRobot(rnd.nextDouble()+rnd.nextInt(1000));
                 setIntegralFRobot(rnd.nextDouble()+rnd.nextInt(1000));
                 setProportionalFRobot(rnd.nextDouble()+rnd.nextInt(1000));
+                setPlusValuesFRobot(getProportionalFRobot()+getDerivativeFRobot()+getIntegralFRobot());
                 
                 setEncoderA1(rnd.nextDouble());
                 setEncoderA2(rnd.nextDouble());
@@ -122,7 +125,7 @@ public class VentanaP extends javax.swing.JFrame{
                     graficaPWM.agregarASeries(getPWMLeft(), getPWMRight(),getCycleTime());
                 
                 if(graficaPID != null)
-                    graficaPID.agregar(getProportionalFRobot(), getIntegralFRobot(), getDerivativeFRobot());
+                    graficaPID.agregar(getProportionalFRobot(), getIntegralFRobot(), getDerivativeFRobot(),getPlusValuesFRobot());
                 
                 if(graficaPos != null)
                     graficaPos.agregar(getPosition());
@@ -132,8 +135,7 @@ public class VentanaP extends javax.swing.JFrame{
                 
             }
         });
-        
-        timer.start();*/
+
     }
     
     /**
@@ -869,7 +871,7 @@ public class VentanaP extends javax.swing.JFrame{
 
     private void buttonGraficaPIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGraficaPIDActionPerformed
         if(graficaPID == null)
-            graficaPID = new GraficaPID(proportionalFRobotList,integralFRobotList,derivativeFRobotList);
+            graficaPID = new GraficaPID(proportionalFRobotList,integralFRobotList,derivativeFRobotList,plusValuesFRobotList);
         else
             graficaPID.mostrarGrafica();
     }//GEN-LAST:event_buttonGraficaPIDActionPerformed
@@ -940,10 +942,12 @@ public class VentanaP extends javax.swing.JFrame{
 
     private void buttonRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRunActionPerformed
         putComando("run");
+        //timer.start();
     }//GEN-LAST:event_buttonRunActionPerformed
 
     private void buttonStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonStopActionPerformed
         putComando("stop");
+        //timer.stop();
     }//GEN-LAST:event_buttonStopActionPerformed
 
     private void buttonOpcionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOpcionesActionPerformed
@@ -1359,7 +1363,7 @@ public class VentanaP extends javax.swing.JFrame{
                                 
 
                                 if(graficaPID != null)
-                                    graficaPID.agregar(this.getProportionalFRobot(), this.getIntegralFRobot(), this.getDerivativeFRobot());
+                                    graficaPID.agregar(this.getProportionalFRobot(), this.getIntegralFRobot(), this.getDerivativeFRobot(), this.getPlusValuesFRobot());
 
                                 if(graficaPos != null)
                                     graficaPos.agregar(getPosition());

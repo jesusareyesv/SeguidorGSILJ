@@ -6,6 +6,9 @@
 package Graficas;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -55,7 +58,15 @@ public class GraficaPosicion extends Grafica {
     }
     
     public void agregar(int p){
-        if(contadorCiclo > 50)
+        if(contadorCiclo > 0 && contadorCiclo % nMuestrasEnPantalla == 0){
+            try {
+                this.guardarGraficaComoPNG((JFreeChart)chart.clone(), "Posicion/Posicion-grafica"+contadorCiclo/nMuestrasEnPantalla);
+            } catch (CloneNotSupportedException ex) {
+                JOptionPane.showMessageDialog(null, "Error al copiar charts");
+            }
+        }
+        
+        if(contadorCiclo > nMuestrasEnPantalla)
             posiciones.remove(0);
         
         posiciones.add(contadorCiclo, p);
