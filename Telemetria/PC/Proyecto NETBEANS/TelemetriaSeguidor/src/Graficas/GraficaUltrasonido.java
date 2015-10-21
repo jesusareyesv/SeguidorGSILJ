@@ -43,7 +43,7 @@ public class GraficaUltrasonido extends Grafica{
         
         int inicio = 0;
         
-        if(p.size() > 200){
+        if(p.size() > 10000){
             inicio = p.size() - 80;
         }
         

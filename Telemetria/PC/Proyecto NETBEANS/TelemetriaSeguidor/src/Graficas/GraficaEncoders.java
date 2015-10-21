@@ -80,7 +80,7 @@ public class GraficaEncoders extends Grafica {
     }
     
     public void agregarASeries(double a1, double a2, double w1, double w2){
-        if(contadorCiclo > 200){
+        if(contadorCiclo > 10000){
             A1.remove(0);
             A2.remove(0);
             W1.remove(0);

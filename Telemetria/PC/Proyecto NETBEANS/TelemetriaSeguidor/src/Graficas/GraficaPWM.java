@@ -76,7 +76,7 @@ public class GraficaPWM extends Grafica{
     }
     
     public void agregarASeries(int i, int d, int tc){
-        if(contadorCiclo > 200){
+        if(contadorCiclo > 10000){
             pwmi.remove(0);
             pwmd.remove(0);
             dutyCicle.remove(0);

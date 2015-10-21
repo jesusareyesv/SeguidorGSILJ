@@ -28,6 +28,7 @@ void Seguidor::init(){
   PWM_MIN = pwm_min;
   PWM_MAX = pwm_max;
   PWM_ABS = pwm_ABS;
+  PWM_BASE = pwm_base;
 
   infrarred_active = distance_active = true;
   robot_active = false;
@@ -111,8 +112,8 @@ void Seguidor::PID_processing(){
   sumaPID = proportional + derivative + integral;
   Serial.print("P:");Serial.print(proportional);Serial.print("D: ");Serial.println(derivative);
   error_antes   = error;
-  pwmM1  = pwm_min + sumaPID;
-  pwmM2  = pwm_min - sumaPID;
+  pwmM1  = PWM_BASE + sumaPID;
+  pwmM2  = PWM_BASE - sumaPID;
   Serial.print("pwm1: ");Serial.print(pwmM1);Serial.print(" pwm2: ");Serial.println(pwmM2);
 }
 
@@ -131,33 +132,6 @@ void Seguidor::set_SensorsValues_LinePosition(unsigned int* values, unsigned int
 void Seguidor::set_Positions_Encoders(long pem1, long pem2){
   position_encoder_M1 = pem1;
   position_encoder_M2 = pem2;
-  /*{
-  long rev1 = 0;
-  long rev2 = 0;
-  double frecuencia1, frecuencia2;
-  float v_angular1, v_angular2;
-
-  long newPosition1 = encoder_M1.read();
-  long newPosition2 = encoder_M2.read();
-  if(newPosition1 !=position1)
-    position1 = newPosition1;
-  if(newPosition2 !=position2)
-    position2 = newPosition2;
-
-    rev1 = position1/120;
-    rev2 = position2/120;
-
-    t_actual =millis();
-    dif_tiempo = t_actual - t_anterior;
-
-    if(dif_tiempo >= 80){
-      frecuencia1 = rev1 / dif_tiempo;
-      frecuencia2 = rev2 / dif_tiempo;
-      t_anterior = t_actual;
-      v_angular1 = 6.28*frecuencia1;
-      v_angular2 = 6.28*frecuencia2;
-    }
-  }*/
 }
 
 void Seguidor::calculate_angular_values(){
@@ -175,7 +149,10 @@ void Seguidor::calculate_angular_values(){
 
   frequency_M2 = revoluciones_M2/ double(difference_time/1000.0);
   frequency_error_M2 = abs(pwmM2*50/255.0 - frequency_M2);
-
+  /*Añadido*/
+  position_encoder_antes_M1 = position_encoder_M1;
+  position_encoder_antes_M2 = position_encoder_M2;
+  /*Añadido*/
   v_angular_M1 = 6.28*frequency_M1;
   a_angular_M1 = v_angular_M1 - v_angular_M1_antes;
 
@@ -257,10 +234,11 @@ void Seguidor::communication_Read(){
           PWM_MIN = Serial1.parseInt();
           PWM_MAX = Serial1.parseInt();
           PWM_ABS = Serial1.parseInt();
+          PWM_BASE = Serial1.parseInt();
 
-          Serial1.print("message/PWM Cambiado -> Min=");Serial1.print(PWM_MIN);Serial1.print("/Max=");Serial1.print(PWM_MAX);Serial1.print("/D=");Serial1.println(PWM_ABS);
+          Serial1.print("message/PWM Cambiado -> Min=");Serial1.print(PWM_MIN);Serial1.print("/Max=");Serial1.print(PWM_MAX);Serial1.print("/ABS=");Serial1.print(PWM_ABS);Serial.print("Base");Serial.println(PWM_BASE);
           break;
-          
+
         case 'e':
           String sssss = Serial1.readString();
           Serial1.print("message/ECHO=");Serial1.println(sssss);

@@ -11,18 +11,18 @@
 #define TELEMETRIA_ON
 
 #ifndef TELEMETRIA_ON
-  #define encoderA1_pin 2
-  #define encoderB1_pin 1
-  #define encoderA2_pin 3
-  #define encoderB2_pin 0
+  #define encoderA1_pin 3
+  #define encoderB1_pin 0
+  #define encoderA2_pin 2
+  #define encoderB2_pin 1 //CAMBIE LOS PINES
 
   #define nSensors 8
   QTRSensorsAnalog qtra((unsigned char[]){0,2,1,3,11,4,5,9},nSensors,muestras_sensor, QTR_NO_EMITTER_PIN);
 #else
-  #define encoderA1_pin 2
-  #define encoderB1_pin 9
-  #define encoderA2_pin 3
-  #define encoderB2_pin 14
+  #define encoderA1_pin 3
+  #define encoderB1_pin 14
+  #define encoderA2_pin 2
+  #define encoderB2_pin 9  //tambien lo cambie
 
   #define nSensors 6
   QTRSensorsAnalog qtra((unsigned char[]){2,1,3,11,4,5},nSensors,muestras_sensor, QTR_NO_EMITTER_PIN);
@@ -63,3 +63,5 @@ void loop(){
 
   seguidor.runing_Seguidor();
 }
+
+
