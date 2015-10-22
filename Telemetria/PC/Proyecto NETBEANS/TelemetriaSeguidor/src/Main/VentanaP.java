@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.Action;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 /**
@@ -28,6 +29,7 @@ import javax.swing.Timer;
  */
 public class VentanaP extends javax.swing.JFrame{
     BotCommunicator communicator;
+    private float P,I,D;
     
     protected int PWMRight, PWMLeft, position, cycleTime;
     protected double proporcionalConst, derivativeConst, integralConst;
@@ -154,18 +156,18 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel1 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jLabel24 = new javax.swing.JLabel();
-        jSlider2 = new javax.swing.JSlider();
-        jLabel25 = new javax.swing.JLabel();
+        Barra_P = new javax.swing.JSlider();
+        Label_P = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
         jPanel3 = new javax.swing.JPanel();
         jLabel22 = new javax.swing.JLabel();
-        jSlider1 = new javax.swing.JSlider();
-        jLabel23 = new javax.swing.JLabel();
+        Barra_I = new javax.swing.JSlider();
+        Label_I = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jPanel5 = new javax.swing.JPanel();
         jLabel26 = new javax.swing.JLabel();
-        jSlider3 = new javax.swing.JSlider();
-        jLabel27 = new javax.swing.JLabel();
+        Barra_D = new javax.swing.JSlider();
+        Label_D = new javax.swing.JLabel();
         JesusDesordenado = new javax.swing.JPanel();
         textFieldConstantesPID_P = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -259,10 +261,28 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel24.setLabelFor(textFieldConstantesPID_P);
         jLabel24.setText("P");
         jPanel4.add(jLabel24);
-        jPanel4.add(jSlider2);
 
-        jLabel25.setText("10.00");
-        jPanel4.add(jLabel25);
+        Barra_P.setMaximum(1000);
+        Barra_P.setValue(500);
+        Barra_P.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Barra_PStateChanged(evt);
+            }
+        });
+        Barra_P.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                Barra_PMouseReleased(evt);
+            }
+        });
+        Barra_P.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                Barra_DKeyReleased(evt);
+            }
+        });
+        jPanel4.add(Barra_P);
+
+        Label_P.setText("10.00");
+        jPanel4.add(Label_P);
 
         jPanel2.add(jPanel4);
         jPanel2.add(jSeparator2);
@@ -271,12 +291,30 @@ public class VentanaP extends javax.swing.JFrame{
         jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.X_AXIS));
 
         jLabel22.setLabelFor(textFieldConstantesPID_P);
-        jLabel22.setText("P");
+        jLabel22.setText("I");
         jPanel3.add(jLabel22);
-        jPanel3.add(jSlider1);
 
-        jLabel23.setText("10.00");
-        jPanel3.add(jLabel23);
+        Barra_I.setMaximum(1000);
+        Barra_I.setValue(500);
+        Barra_I.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Barra_IStateChanged(evt);
+            }
+        });
+        Barra_I.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                Barra_IMouseReleased(evt);
+            }
+        });
+        Barra_I.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                Barra_DKeyReleased(evt);
+            }
+        });
+        jPanel3.add(Barra_I);
+
+        Label_I.setText("10.00");
+        jPanel3.add(Label_I);
 
         jPanel2.add(jPanel3);
         jPanel2.add(jSeparator1);
@@ -285,12 +323,30 @@ public class VentanaP extends javax.swing.JFrame{
         jPanel5.setLayout(new javax.swing.BoxLayout(jPanel5, javax.swing.BoxLayout.X_AXIS));
 
         jLabel26.setLabelFor(textFieldConstantesPID_P);
-        jLabel26.setText("P");
+        jLabel26.setText("D");
         jPanel5.add(jLabel26);
-        jPanel5.add(jSlider3);
 
-        jLabel27.setText("10.00");
-        jPanel5.add(jLabel27);
+        Barra_D.setMaximum(1000);
+        Barra_D.setValue(500);
+        Barra_D.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Barra_DStateChanged(evt);
+            }
+        });
+        Barra_D.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                Barra_DMouseReleased(evt);
+            }
+        });
+        Barra_D.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                Barra_DKeyReleased(evt);
+            }
+        });
+        jPanel5.add(Barra_D);
+
+        Label_D.setText("10.00");
+        jPanel5.add(Label_D);
 
         jPanel2.add(jPanel5);
 
@@ -337,7 +393,7 @@ public class VentanaP extends javax.swing.JFrame{
             .addGroup(JesusDesordenadoLayout.createSequentialGroup()
                 .addGap(112, 112, 112)
                 .addComponent(buttonCPID_Cambiar)
-                .addContainerGap(149, Short.MAX_VALUE))
+                .addContainerGap(181, Short.MAX_VALUE))
         );
         JesusDesordenadoLayout.setVerticalGroup(
             JesusDesordenadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1047,6 +1103,37 @@ public class VentanaP extends javax.swing.JFrame{
                 break;
         }
     }//GEN-LAST:event_buttonOpcionesActionPerformed
+
+    private void Barra_PStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Barra_PStateChanged
+        textFieldConstantesPID_P.setText(String.valueOf(P));
+        P = control_de_slider(Label_P, Barra_P.getValue(), 100);
+    }//GEN-LAST:event_Barra_PStateChanged
+
+    private void Barra_PMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Barra_PMouseReleased
+        enviarPIDParametros();
+    }//GEN-LAST:event_Barra_PMouseReleased
+
+    private void Barra_IStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Barra_IStateChanged
+        textFieldConstantesPID_I.setText(String.valueOf(I));
+        I = control_de_slider(Label_I, Barra_I.getValue(), 100);
+    }//GEN-LAST:event_Barra_IStateChanged
+
+    private void Barra_IMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Barra_IMouseReleased
+        enviarPIDParametros();
+    }//GEN-LAST:event_Barra_IMouseReleased
+
+    private void Barra_DMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Barra_DMouseReleased
+        enviarPIDParametros();
+    }//GEN-LAST:event_Barra_DMouseReleased
+
+    private void Barra_DStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Barra_DStateChanged
+        textFieldConstantesPID_D.setText(String.valueOf(D));
+        D = control_de_slider(Label_D, Barra_D.getValue(), 100);
+    }//GEN-LAST:event_Barra_DStateChanged
+
+    private void Barra_DKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Barra_DKeyReleased
+        enviarPIDParametros();
+    }//GEN-LAST:event_Barra_DKeyReleased
     
     private void putComando(String comando){
         
@@ -1519,9 +1606,32 @@ public class VentanaP extends javax.swing.JFrame{
         }
         
     }
+    private float control_de_slider(JLabel l,int valor,int decimales)
+    {
+        float r = (float)valor/decimales;
+        l.setText(String.valueOf(r));
+
+        return r;
+    }
+    private void enviarPIDParametros()
+    {
+         try{
+            setCommandLineText("Proporcional="+P+"/Derivatio="+D+"/Integral="+I);
+            writeToDataStream("v/"+P+"/"+I+"/"+D);
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this, "ERROR!!"+ e.getMessage()+" No es un valor válido. (Error en actualizacion de PID)", "Error en actualización de PID", JOptionPane.ERROR_MESSAGE);
+            setCommandLineText("ERROR!!"+ e.getMessage()+" No es un valor válido. (Error en actualizacion de PID)");
+        }
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JSlider Barra_D;
+    private javax.swing.JSlider Barra_I;
+    private javax.swing.JSlider Barra_P;
     private javax.swing.JPanel JesusDesordenado;
+    private javax.swing.JLabel Label_D;
+    private javax.swing.JLabel Label_I;
+    private javax.swing.JLabel Label_P;
     private javax.swing.JButton buttonCPID_Cambiar;
     private javax.swing.JButton buttonConectar;
     private javax.swing.JButton buttonDesconectar;
@@ -1549,11 +1659,8 @@ public class VentanaP extends javax.swing.JFrame{
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
-    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
-    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
-    private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1568,9 +1675,6 @@ public class VentanaP extends javax.swing.JFrame{
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JSlider jSlider1;
-    private javax.swing.JSlider jSlider2;
-    private javax.swing.JSlider jSlider3;
     private javax.swing.JPanel panelConexion;
     private javax.swing.JPanel panelConsola;
     private javax.swing.JPanel panelConstantesPID;
