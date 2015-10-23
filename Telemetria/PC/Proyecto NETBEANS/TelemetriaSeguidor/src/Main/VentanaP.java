@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.Action;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 /**
@@ -28,6 +29,7 @@ import javax.swing.Timer;
  */
 public class VentanaP extends javax.swing.JFrame{
     BotCommunicator communicator;
+    private float P,I,D;
     
     protected int PWMRight, PWMLeft, position, cycleTime;
     protected double proporcionalConst, derivativeConst, integralConst;
@@ -66,6 +68,9 @@ public class VentanaP extends javax.swing.JFrame{
      */
     public VentanaP() {
         initComponents();
+        
+        JesusDesordenado.setVisible(false);
+        
         iniciar();
         this.setTitle("Telemetría seguidor LabPrototipos UNET");
         
@@ -149,12 +154,28 @@ public class VentanaP extends javax.swing.JFrame{
 
         jInternalFrame1 = new javax.swing.JInternalFrame();
         panelConstantesPID = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel24 = new javax.swing.JLabel();
+        Barra_P = new javax.swing.JSlider();
+        Label_P = new javax.swing.JLabel();
+        jSeparator2 = new javax.swing.JSeparator();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel22 = new javax.swing.JLabel();
+        Barra_I = new javax.swing.JSlider();
+        Label_I = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        jPanel5 = new javax.swing.JPanel();
+        jLabel26 = new javax.swing.JLabel();
+        Barra_D = new javax.swing.JSlider();
+        Label_D = new javax.swing.JLabel();
+        JesusDesordenado = new javax.swing.JPanel();
         textFieldConstantesPID_P = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         textFieldConstantesPID_I = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
         textFieldConstantesPID_D = new javax.swing.JTextField();
         buttonCPID_Cambiar = new javax.swing.JButton();
         panelPWM = new javax.swing.JPanel();
@@ -228,9 +249,110 @@ public class VentanaP extends javax.swing.JFrame{
         panelConstantesPID.setBackground(new java.awt.Color(175, 221, 248));
         panelConstantesPID.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         panelConstantesPID.setName("Variables PID"); // NOI18N
+        panelConstantesPID.setLayout(new javax.swing.BoxLayout(panelConstantesPID, javax.swing.BoxLayout.PAGE_AXIS));
+
+        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.PAGE_AXIS));
 
         jLabel1.setFont(new java.awt.Font("Droid Sans", 0, 14)); // NOI18N
         jLabel1.setText("Constantes PID");
+        jPanel2.add(jLabel1);
+
+        jPanel4.setBackground(new java.awt.Color(244, 240, 240));
+        jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.X_AXIS));
+
+        jLabel24.setLabelFor(textFieldConstantesPID_P);
+        jLabel24.setText("P");
+        jPanel4.add(jLabel24);
+
+        Barra_P.setMaximum(1000);
+        Barra_P.setValue(500);
+        Barra_P.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Barra_PStateChanged(evt);
+            }
+        });
+        Barra_P.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                Barra_PMouseReleased(evt);
+            }
+        });
+        Barra_P.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                Barra_DKeyReleased(evt);
+            }
+        });
+        jPanel4.add(Barra_P);
+
+        Label_P.setText("10.00");
+        jPanel4.add(Label_P);
+
+        jPanel2.add(jPanel4);
+        jPanel2.add(jSeparator2);
+
+        jPanel3.setBackground(new java.awt.Color(244, 240, 240));
+        jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.X_AXIS));
+
+        jLabel22.setLabelFor(textFieldConstantesPID_P);
+        jLabel22.setText("I");
+        jPanel3.add(jLabel22);
+
+        Barra_I.setMaximum(1000);
+        Barra_I.setValue(500);
+        Barra_I.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Barra_IStateChanged(evt);
+            }
+        });
+        Barra_I.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                Barra_IMouseReleased(evt);
+            }
+        });
+        Barra_I.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                Barra_DKeyReleased(evt);
+            }
+        });
+        jPanel3.add(Barra_I);
+
+        Label_I.setText("10.00");
+        jPanel3.add(Label_I);
+
+        jPanel2.add(jPanel3);
+        jPanel2.add(jSeparator1);
+
+        jPanel5.setBackground(new java.awt.Color(244, 240, 240));
+        jPanel5.setLayout(new javax.swing.BoxLayout(jPanel5, javax.swing.BoxLayout.X_AXIS));
+
+        jLabel26.setLabelFor(textFieldConstantesPID_P);
+        jLabel26.setText("D");
+        jPanel5.add(jLabel26);
+
+        Barra_D.setMaximum(1000);
+        Barra_D.setValue(500);
+        Barra_D.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Barra_DStateChanged(evt);
+            }
+        });
+        Barra_D.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                Barra_DMouseReleased(evt);
+            }
+        });
+        Barra_D.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                Barra_DKeyReleased(evt);
+            }
+        });
+        jPanel5.add(Barra_D);
+
+        Label_D.setText("10.00");
+        jPanel5.add(Label_D);
+
+        jPanel2.add(jPanel5);
+
+        panelConstantesPID.add(jPanel2);
 
         textFieldConstantesPID_P.setText("2");
 
@@ -240,10 +362,10 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel3.setLabelFor(textFieldConstantesPID_I);
         jLabel3.setText("I");
 
+        textFieldConstantesPID_I.setText("4");
+
         jLabel4.setLabelFor(textFieldConstantesPID_D);
         jLabel4.setText("D");
-
-        textFieldConstantesPID_I.setText("4");
 
         textFieldConstantesPID_D.setText("6");
 
@@ -254,49 +376,48 @@ public class VentanaP extends javax.swing.JFrame{
             }
         });
 
-        javax.swing.GroupLayout panelConstantesPIDLayout = new javax.swing.GroupLayout(panelConstantesPID);
-        panelConstantesPID.setLayout(panelConstantesPIDLayout);
-        panelConstantesPIDLayout.setHorizontalGroup(
-            panelConstantesPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelConstantesPIDLayout.createSequentialGroup()
+        javax.swing.GroupLayout JesusDesordenadoLayout = new javax.swing.GroupLayout(JesusDesordenado);
+        JesusDesordenado.setLayout(JesusDesordenadoLayout);
+        JesusDesordenadoLayout.setHorizontalGroup(
+            JesusDesordenadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(JesusDesordenadoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelConstantesPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addGroup(panelConstantesPIDLayout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addGroup(panelConstantesPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(panelConstantesPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(textFieldConstantesPID_D, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
-                            .addComponent(textFieldConstantesPID_I)
-                            .addComponent(textFieldConstantesPID_P)))
-                    .addComponent(buttonCPID_Cambiar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(JesusDesordenadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(JesusDesordenadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(textFieldConstantesPID_D)
+                    .addComponent(textFieldConstantesPID_I)
+                    .addComponent(textFieldConstantesPID_P))
                 .addContainerGap())
+            .addGroup(JesusDesordenadoLayout.createSequentialGroup()
+                .addGap(112, 112, 112)
+                .addComponent(buttonCPID_Cambiar)
+                .addContainerGap(181, Short.MAX_VALUE))
         );
-        panelConstantesPIDLayout.setVerticalGroup(
-            panelConstantesPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelConstantesPIDLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addGroup(panelConstantesPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+        JesusDesordenadoLayout.setVerticalGroup(
+            JesusDesordenadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, JesusDesordenadoLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(buttonCPID_Cambiar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(JesusDesordenadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textFieldConstantesPID_P, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
-                .addGap(26, 26, 26)
-                .addGroup(panelConstantesPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(JesusDesordenadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(textFieldConstantesPID_I, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(panelConstantesPIDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(JesusDesordenadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(textFieldConstantesPID_D, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(27, 27, 27)
-                .addComponent(buttonCPID_Cambiar)
                 .addContainerGap())
         );
+
+        panelConstantesPID.add(JesusDesordenado);
 
         panelPWM.setBackground(new java.awt.Color(175, 221, 248));
         panelPWM.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -624,7 +745,7 @@ public class VentanaP extends javax.swing.JFrame{
                         .addGroup(panelConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel19)
                             .addComponent(jLabel20))
-                        .addGap(0, 32, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelConexionLayout.setVerticalGroup(
@@ -808,7 +929,7 @@ public class VentanaP extends javax.swing.JFrame{
                     .addComponent(panelConexion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelConsola, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -986,6 +1107,37 @@ public class VentanaP extends javax.swing.JFrame{
                 break;
         }
     }//GEN-LAST:event_buttonOpcionesActionPerformed
+
+    private void Barra_PStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Barra_PStateChanged
+        textFieldConstantesPID_P.setText(String.valueOf(P));
+        P = control_de_slider(Label_P, Barra_P.getValue(), 100);
+    }//GEN-LAST:event_Barra_PStateChanged
+
+    private void Barra_PMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Barra_PMouseReleased
+        enviarPIDParametros();
+    }//GEN-LAST:event_Barra_PMouseReleased
+
+    private void Barra_IStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Barra_IStateChanged
+        textFieldConstantesPID_I.setText(String.valueOf(I));
+        I = control_de_slider(Label_I, Barra_I.getValue(), 100);
+    }//GEN-LAST:event_Barra_IStateChanged
+
+    private void Barra_IMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Barra_IMouseReleased
+        enviarPIDParametros();
+    }//GEN-LAST:event_Barra_IMouseReleased
+
+    private void Barra_DMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Barra_DMouseReleased
+        enviarPIDParametros();
+    }//GEN-LAST:event_Barra_DMouseReleased
+
+    private void Barra_DStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Barra_DStateChanged
+        textFieldConstantesPID_D.setText(String.valueOf(D));
+        D = control_de_slider(Label_D, Barra_D.getValue(), 100);
+    }//GEN-LAST:event_Barra_DStateChanged
+
+    private void Barra_DKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Barra_DKeyReleased
+        enviarPIDParametros();
+    }//GEN-LAST:event_Barra_DKeyReleased
     
     private void putComando(String comando){
         
@@ -1460,8 +1612,32 @@ public class VentanaP extends javax.swing.JFrame{
         }
         
     }
+    private float control_de_slider(JLabel l,int valor,int decimales)
+    {
+        float r = (float)valor/decimales;
+        l.setText(String.valueOf(r));
+
+        return r;
+    }
+    private void enviarPIDParametros()
+    {
+         try{
+            setCommandLineText("Proporcional="+P+"/Derivatio="+D+"/Integral="+I);
+            writeToDataStream("v/"+P+"/"+I+"/"+D);
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this, "ERROR!!"+ e.getMessage()+" No es un valor válido. (Error en actualizacion de PID)", "Error en actualización de PID", JOptionPane.ERROR_MESSAGE);
+            setCommandLineText("ERROR!!"+ e.getMessage()+" No es un valor válido. (Error en actualizacion de PID)");
+        }
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JSlider Barra_D;
+    private javax.swing.JSlider Barra_I;
+    private javax.swing.JSlider Barra_P;
+    private javax.swing.JPanel JesusDesordenado;
+    private javax.swing.JLabel Label_D;
+    private javax.swing.JLabel Label_I;
+    private javax.swing.JLabel Label_P;
     private javax.swing.JButton buttonCPID_Cambiar;
     private javax.swing.JButton buttonConectar;
     private javax.swing.JButton buttonDesconectar;
@@ -1488,6 +1664,9 @@ public class VentanaP extends javax.swing.JFrame{
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1495,7 +1674,13 @@ public class VentanaP extends javax.swing.JFrame{
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
     private javax.swing.JPanel panelConexion;
     private javax.swing.JPanel panelConsola;
     private javax.swing.JPanel panelConstantesPID;
