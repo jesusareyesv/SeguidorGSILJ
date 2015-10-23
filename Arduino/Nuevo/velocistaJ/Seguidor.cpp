@@ -107,14 +107,18 @@ void Seguidor::PID_processing(){
   /*Los separé para control*/
   proportional = k_P * error;
   derivative = k_D * (error - error_antes);
-  integral = 0;
+  suma_integral += error;
+
+  suma_integral = constrain(suma_integral,-255,255);
+
+  integral = k_I * suma_integral;
 
   sumaPID = proportional + derivative + integral;
-  Serial.print("P:");Serial.print(proportional);Serial.print("D: ");Serial.println(derivative);
+  //Serial.print("P:");Serial.print(proportional);Serial.print("D: ");Serial.println(derivative);
   error_antes   = error;
   pwmM1  = PWM_BASE + sumaPID;
   pwmM2  = PWM_BASE - sumaPID;
-  Serial.print("pwm1: ");Serial.print(pwmM1);Serial.print(" pwm2: ");Serial.println(pwmM2);
+  //Serial.print("pwm1: ");Serial.print(pwmM1);Serial.print(" pwm2: ");Serial.println(pwmM2);
 }
 
 void Seguidor::adjust_velocities(){
@@ -178,11 +182,11 @@ void Seguidor::frenoABS(int times){
 void Seguidor::change_Velocity(int vm1, int vm2){
   change_Direction(0,0);
 
-  vm1 = constrain(vm1,PWM_MIN,PWM_MAX);
-  vm2 = constrain(vm2,PWM_MIN,PWM_MAX);
+  pwmM1 = constrain(vm1,PWM_MIN,PWM_MAX);
+  pwmM2 = constrain(vm2,PWM_MIN,PWM_MAX);
 
-  analogWrite(pwmM1_pin,vm1);
-  analogWrite(pwmM2_pin,vm2);
+  analogWrite(pwmM1_pin,pwmM1);
+  analogWrite(pwmM2_pin,pwmM2);
 }
 
 bool Seguidor::isRobot_active(){

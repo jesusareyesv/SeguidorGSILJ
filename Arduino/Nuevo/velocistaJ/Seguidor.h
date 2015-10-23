@@ -28,7 +28,7 @@
 
 class Seguidor{
     /*Variables Agregadas*/
-    
+
     //long rev = 0;
     //double frecuencia;
 
@@ -51,7 +51,7 @@ class Seguidor{
     double v_angular_M1, v_angular_M2, v_angular_M1_antes, v_angular_M2_antes, a_angular_M1, a_angular_M2;
 
     double k_P, k_I, k_D;
-    double proportional, integral, derivative, sumaPID;
+    double proportional, suma_integral, integral, derivative, sumaPID;
     double error, error_antes;
 
     long loop_time, before_time, actual_time, encoders_time, difference_time;
