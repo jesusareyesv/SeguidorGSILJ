@@ -1,0 +1,16 @@
+rm -rf graficasGuardadas/
+mkdir graficasGuardadas
+cd graficasGuardadas
+mkdir Distancia
+mkdir Encoders
+mkdir PID
+mkdir Posicion
+mkdir PWM
+
+mkdir Encoders/AA
+mkdir Encoders/WA
+
+mkdir PID/Suma
+mkdir PID/PID
+mkdir PWM/TiempoCiclo
+mkdir PWM/PWM_motores

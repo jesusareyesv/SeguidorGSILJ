@@ -10,7 +10,7 @@ Seguidor::Seguidor(double kp,double ki,double kd){
 }
 
 void Seguidor::init(){
-  Serial.begin(baud_rate_Serial);
+  //Serial.begin(baud_rate_Serial);
   Serial1.begin(baud_rate_Bluetooth);
   pinMode(direction_forward_M1_pin,OUTPUT);
   pinMode(direction_forward_M2_pin,OUTPUT);
@@ -25,7 +25,13 @@ void Seguidor::init(){
   pinMode(encoderB1_pin,INPUT);
   pinMode(encoderB2_pin,INPUT);*/
 
-  infrarred_active = distance_active = robot_active = true;
+  PWM_MIN = pwm_min;
+  PWM_MAX = pwm_max;
+  PWM_ABS = pwm_ABS;
+  PWM_BASE = pwm_base;
+
+  infrarred_active = distance_active = true;
+  robot_active = false;
   digitalWrite(stby_pin,HIGH);
 //  t_inicio = millis();
 //  t_anterior = t_actual = millis();
@@ -49,9 +55,12 @@ void Seguidor::runing_Seguidor(){
       this->calculate_angular_values();
       encoders_time = actual_time;
     }
-    
-    //PID_processing();
+
+    PID_processing();
     adjust_velocities();
+  }else{
+    change_Velocity(0,0);
+    change_Direction(0,0);
   }
 
   actual_time = millis();
@@ -98,18 +107,22 @@ void Seguidor::PID_processing(){
   /*Los separé para control*/
   proportional = k_P * error;
   derivative = k_D * (error - error_antes);
-  integral = 0;
+  suma_integral += error;
+
+  suma_integral = constrain(suma_integral,-255,255);
+
+  integral = k_I * suma_integral;
 
   sumaPID = proportional + derivative + integral;
-  Serial.print("P:");Serial.print(proportional);Serial.print("D: ");Serial.println(derivative);
+  //Serial.print("P:");Serial.print(proportional);Serial.print("D: ");Serial.println(derivative);
   error_antes   = error;
-  pwmM1  = pwm_min + sumaPID;
-  pwmM2  = pwm_min - sumaPID;
-  Serial.print("pwm1: ");Serial.print(pwmM1);Serial.print(" pwm2: ");Serial.println(pwmM2);
+  pwmM1  = PWM_BASE + sumaPID;
+  pwmM2  = PWM_BASE - sumaPID;
+  //Serial.print("pwm1: ");Serial.print(pwmM1);Serial.print(" pwm2: ");Serial.println(pwmM2);
 }
 
 void Seguidor::adjust_velocities(){
-  pwmM1 = pwmM2 = pwm_max;
+  //pwmM1 = pwmM2 = pwm_max;
   change_Velocity(pwmM1,pwmM2);
   change_Direction(1,1);
 }
@@ -123,33 +136,6 @@ void Seguidor::set_SensorsValues_LinePosition(unsigned int* values, unsigned int
 void Seguidor::set_Positions_Encoders(long pem1, long pem2){
   position_encoder_M1 = pem1;
   position_encoder_M2 = pem2;
-  /*{
-  long rev1 = 0;
-  long rev2 = 0;
-  double frecuencia1, frecuencia2;
-  float v_angular1, v_angular2;
-
-  long newPosition1 = encoder_M1.read();
-  long newPosition2 = encoder_M2.read();
-  if(newPosition1 !=position1)
-    position1 = newPosition1;
-  if(newPosition2 !=position2)
-    position2 = newPosition2;
-
-    rev1 = position1/120;
-    rev2 = position2/120;
-
-    t_actual =millis();
-    dif_tiempo = t_actual - t_anterior;
-
-    if(dif_tiempo >= 80){
-      frecuencia1 = rev1 / dif_tiempo;
-      frecuencia2 = rev2 / dif_tiempo;
-      t_anterior = t_actual;
-      v_angular1 = 6.28*frecuencia1;
-      v_angular2 = 6.28*frecuencia2;
-    }
-  }*/
 }
 
 void Seguidor::calculate_angular_values(){
@@ -167,7 +153,10 @@ void Seguidor::calculate_angular_values(){
 
   frequency_M2 = revoluciones_M2/ double(difference_time/1000.0);
   frequency_error_M2 = abs(pwmM2*50/255.0 - frequency_M2);
-
+  /*Añadido*/
+  position_encoder_antes_M1 = position_encoder_M1;
+  position_encoder_antes_M2 = position_encoder_M2;
+  /*Añadido*/
   v_angular_M1 = 6.28*frequency_M1;
   a_angular_M1 = v_angular_M1 - v_angular_M1_antes;
 
@@ -181,7 +170,7 @@ void Seguidor::emergency_stop(){
 
 void Seguidor::frenoABS(int times){
   for(int i = 0; i < times; i++){
-    change_Velocity(pwm_ABS,pwm_ABS);
+    change_Velocity(pwm_ABS,PWM_ABS);
     delay(20);
     change_Direction(-1,-1);
 		delay(30);
@@ -193,11 +182,11 @@ void Seguidor::frenoABS(int times){
 void Seguidor::change_Velocity(int vm1, int vm2){
   change_Direction(0,0);
 
-  constrain(vm1,pwm_min,pwm_max);
-  constrain(vm2,pwm_min,pwm_max);
+  pwmM1 = constrain(vm1,PWM_MIN,PWM_MAX);
+  pwmM2 = constrain(vm2,PWM_MIN,PWM_MAX);
 
-  analogWrite(pwmM1_pin,vm1);
-  analogWrite(pwmM2_pin,vm2);
+  analogWrite(pwmM1_pin,pwmM1);
+  analogWrite(pwmM2_pin,pwmM2);
 }
 
 bool Seguidor::isRobot_active(){
@@ -244,10 +233,20 @@ void Seguidor::communication_Read(){
             //Serial1.print("message/Clave cambiada a:");Serial1.println(clave);
             //Serial.print("message/Clave cambiada a:");Serial.println(clave);
           break;
+
+        case 'C':
+          PWM_MIN = Serial1.parseInt();
+          PWM_MAX = Serial1.parseInt();
+          PWM_ABS = Serial1.parseInt();
+          PWM_BASE = Serial1.parseInt();
+
+          Serial1.print("message/PWM Cambiado -> Min=");Serial1.print(PWM_MIN);Serial1.print("/Max=");Serial1.print(PWM_MAX);Serial1.print("/ABS=");Serial1.print(PWM_ABS);Serial.print("Base");Serial.println(PWM_BASE);
+          break;
+
         case 'e':
-          String s = Serial1.readString();
-          Serial1.print("message/ECHO=");Serial1.println(s);
-          //Serial.print("message/ECHO=");Serial.println(s);
+          String sssss = Serial1.readString();
+          Serial1.print("message/ECHO=");Serial1.println(sssss);
+          //Serial.print("message/ECHO=");Serial.println(sssss);
           break;
 
     }
@@ -256,7 +255,7 @@ void Seguidor::communication_Read(){
 }
 
 void Seguidor::communication_Write(){
-  Serial.println(error);
+  /*Serial.println(error);
   Serial.print("data/");
   Serial.print(proportional);Serial.print("   ");
   Serial.print("/");
@@ -283,7 +282,7 @@ void Seguidor::communication_Write(){
   Serial.print(a_angular_M1);
   Serial.print("/");
   Serial.println(a_angular_M2);
-  Serial.println();Serial.println();Serial.println();
+  Serial.println();Serial.println();Serial.println();*/
 
   Serial1.print("data/");
       Serial1.print(proportional);

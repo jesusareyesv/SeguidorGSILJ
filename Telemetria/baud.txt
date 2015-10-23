@@ -1,0 +1,38 @@
+char NOMBRE[10]  = arduino;    
+char BPS         = '8';           // 1=1200 , 2=2400, 3=4800, 4=9600, 5=19200, 6=38400, 7=57600, 8=115200
+char PASS[10]    = 0000;        
+ 
+void setup()
+{
+    Serial.begin(115200);
+    pinMode(13,OUTPUT);
+    digitalWrite(13,HIGH);
+    delay(1000);
+    digitalWrite(13,LOW);
+    
+    Serial.print(AT); 
+    delay(1000);
+
+    digitalWrite(13,HIGH);
+    Serial.print(AT+NAME); 
+    Serial.print(NOMBRE);
+    delay(1000);
+    
+ 
+    digitalWrite(13,LOW);
+    Serial.print(AT+BAUD); 
+    Serial.print(BPS); 
+    delay(1000);
+ 
+    digitalWrite(13,HIGH);
+    Serial.print(AT+PIN);
+    Serial.print(PASS); 
+    delay(1000);
+    digitalWrite(13,LOW);    
+}
+ 
+void loop()
+{
+    digitalWrite(13, LOW);
+    delay(500);
+}

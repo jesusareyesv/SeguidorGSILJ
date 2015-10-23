@@ -5,9 +5,11 @@
  */
 package Graficas;
 
+import static Graficas.Grafica.nMuestrasEnPantalla;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -62,9 +64,9 @@ public class GraficaPWM extends Grafica{
         
         int inicio = 0;
         
-        if(apwmi.size() > 80){
+        /*if(apwmi.size() > 80){
             inicio = apwmi.size() - 80;
-        }
+        }*/
         
         for (int ciclo = inicio; ciclo < apwmi.size() - 1; ciclo++) {
             pwmi.add(ciclo+1,apwmi.get(ciclo));
@@ -76,7 +78,15 @@ public class GraficaPWM extends Grafica{
     }
     
     public void agregarASeries(int i, int d, int tc){
-        if(contadorCiclo > 200){
+        if(contadorCiclo > 0 && contadorCiclo % nMuestrasEnPantalla == 0){
+            try {
+                this.guardarGraficaComoPNG((JFreeChart)chartPWM.clone(), "PWM/PWM-grafica"+contadorCiclo/nMuestrasEnPantalla);
+            } catch (CloneNotSupportedException ex) {
+                JOptionPane.showMessageDialog(null, "Error al copiar charts");
+            }
+        }
+        
+        if(contadorCiclo > nMuestrasEnPantalla){
             pwmi.remove(0);
             pwmd.remove(0);
             dutyCicle.remove(0);

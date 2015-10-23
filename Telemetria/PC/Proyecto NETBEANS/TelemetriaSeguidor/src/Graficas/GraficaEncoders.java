@@ -6,6 +6,9 @@
 package Graficas;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -65,22 +68,28 @@ public class GraficaEncoders extends Grafica {
         
         int inicio = 0;
         
-        if(a1.size() > 80){
+        /*if(a1.size() > 80){
             inicio = a1.size() - 80;
-        }
+        }*/
         
-        for (int ciclo = inicio; ciclo < a1.size(); ciclo++) {
-            A1.add(ciclo+1,a1.get(ciclo));
-            A2.add(ciclo+1,a2.get(ciclo));
-            W1.add(ciclo+1,w1.get(ciclo));
-            W2.add(ciclo+1,w2.get(ciclo));
+        for (int ciclo = 0; ciclo < a1.size(); ciclo++) {
+            agregarASeries(a1.get(ciclo), a2.get(ciclo), w1.get(ciclo), w1.get(ciclo));
         }
         
         contadorCiclo = a1.size();
     }
     
     public void agregarASeries(double a1, double a2, double w1, double w2){
-        if(contadorCiclo > 200){
+        if(contadorCiclo > 0 && contadorCiclo % nMuestrasEnPantalla == 0){
+            try {
+                this.guardarGraficaComoPNG((JFreeChart)chartAA.clone(), "Encoders/AA/Aceleracion-angular"+contadorCiclo/nMuestrasEnPantalla);
+                this.guardarGraficaComoPNG((JFreeChart)chartWA.clone(), "Encoders/WA/Velocidad-angular"+contadorCiclo/nMuestrasEnPantalla);
+            } catch (CloneNotSupportedException ex) {
+                JOptionPane.showMessageDialog(null, "Error al copiar charts");
+            }
+        }
+        
+        if(contadorCiclo > nMuestrasEnPantalla){
             A1.remove(0);
             A2.remove(0);
             W1.remove(0);
