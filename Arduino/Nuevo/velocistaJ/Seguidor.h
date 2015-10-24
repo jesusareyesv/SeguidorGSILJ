@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#define nSensors 8
+#define nSensors 6
 
 #define desired_position (nSensors - 1)*500
 
@@ -14,6 +14,8 @@
 #define pwm_max 120
 #define pwm_ABS 160
 #define pwm_base 100
+
+#define freno_Curva 2
 
 #define direction_forward_M1_pin 8
 #define direction_backward_M1_pin 7
@@ -39,7 +41,7 @@ class Seguidor{
     //long position1 = -999;
     //long position2 = -999;
     /*Variables Agregadas*/
-    int pwmM1, pwmM2, PWM_MIN,PWM_MAX, PWM_ABS, PWM_BASE;
+    int pwmM1, pwmM2, PWM_MIN,PWM_MAX, PWM_ABS, PWM_BASE, FRENO_CURVA;
     bool forward_M1, backward_M1, forward_M2, backward_M2;
 
     long position_encoder_M1, position_encoder_antes_M1;

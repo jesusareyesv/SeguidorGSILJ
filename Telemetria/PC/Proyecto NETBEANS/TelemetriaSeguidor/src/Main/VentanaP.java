@@ -30,6 +30,7 @@ import javax.swing.Timer;
 public class VentanaP extends javax.swing.JFrame{
     BotCommunicator communicator;
     private float P,I,D;
+    private int PWM_MIN,PWM_MAX,PWM_ABS,PWM_BASE;
     
     protected int PWMRight, PWMLeft, position, cycleTime;
     protected double proporcionalConst, derivativeConst, integralConst;
@@ -59,8 +60,8 @@ public class VentanaP extends javax.swing.JFrame{
     
     private Random rnd = new Random();
     
-    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo","change_pwm"};
-    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión.","Cambia los limites pwm del arduino. OPCIONES [pwmMinima,pwmMaxima,pwmFrenoABS]."};
+    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo","change_pwm","freno_c"};
+    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión.","Cambia los limites pwm del arduino. OPCIONES [pwmMinima,pwmMaxima,pwmFrenoABS].","Numero de veces que se ejecuta el freno en las curvas."};
     private String clave;
     
     /**
@@ -74,7 +75,7 @@ public class VentanaP extends javax.swing.JFrame{
         iniciar();
         this.setTitle("Telemetría seguidor LabPrototipos UNET");
         
-        this.setResizable(false);
+        //this.setResizable(false);
         
         communicator=new BotCommunicator();
         //comm.start();
@@ -100,7 +101,12 @@ public class VentanaP extends javax.swing.JFrame{
         PWMLeft=PWMRight=position=cycleTime=0;
         proporcionalConst=derivativeConst=integralConst=proportionalFRobot=derivativeFRobot=integralFRobot=plusValuesFRobot=0;
         encoderA1=encoderA2=encoderW1=encoderW2=0;
-
+        
+        graficaPID = new GraficaPID(proportionalFRobotList,integralFRobotList,derivativeFRobotList,plusValuesFRobotList);
+        graficaPWM = new GraficaPWM(PWMLList,PWMRList,cycleTimeList);
+        graficaUltra = new GraficaUltrasonido(ultrasonidoList);
+        graficaEnc = new GraficaEncoders(encoderA1List, encoderA2List, encoderW1List, encoderW2List);       
+        graficaPos = new GraficaPosicion(positionList);
         
         timer = new Timer(30, new ActionListener() {
 
@@ -226,9 +232,29 @@ public class VentanaP extends javax.swing.JFrame{
         buttonRun = new javax.swing.JButton();
         buttonStop = new javax.swing.JButton();
         panelUltrasonido = new javax.swing.JPanel();
-        textFieldUltrasonido = new javax.swing.JTextField();
         jLabel21 = new javax.swing.JLabel();
+        textFieldUltrasonido = new javax.swing.JTextField();
         buttonGraficaUltrasonido = new javax.swing.JButton();
+        panelPWMConstante = new javax.swing.JPanel();
+        jPanel9 = new javax.swing.JPanel();
+        jLabel25 = new javax.swing.JLabel();
+        sliderPWM_MIN = new javax.swing.JSlider();
+        labelpwm_min = new javax.swing.JLabel();
+        jSeparator3 = new javax.swing.JSeparator();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel27 = new javax.swing.JLabel();
+        sliderPWM_MAX = new javax.swing.JSlider();
+        labelpwm_max = new javax.swing.JLabel();
+        jSeparator5 = new javax.swing.JSeparator();
+        jPanel11 = new javax.swing.JPanel();
+        jLabel28 = new javax.swing.JLabel();
+        sliderPWM_ABS = new javax.swing.JSlider();
+        labelpwm_abs = new javax.swing.JLabel();
+        jSeparator4 = new javax.swing.JSeparator();
+        jPanel12 = new javax.swing.JPanel();
+        jLabel29 = new javax.swing.JLabel();
+        sliderPWM_BASE = new javax.swing.JSlider();
+        labelpwm_base = new javax.swing.JLabel();
 
         jInternalFrame1.setVisible(true);
 
@@ -251,6 +277,7 @@ public class VentanaP extends javax.swing.JFrame{
         panelConstantesPID.setName("Variables PID"); // NOI18N
         panelConstantesPID.setLayout(new javax.swing.BoxLayout(panelConstantesPID, javax.swing.BoxLayout.PAGE_AXIS));
 
+        jPanel2.setBackground(new java.awt.Color(175, 221, 248));
         jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.PAGE_AXIS));
 
         jLabel1.setFont(new java.awt.Font("Droid Sans", 0, 14)); // NOI18N
@@ -353,6 +380,8 @@ public class VentanaP extends javax.swing.JFrame{
         jPanel2.add(jPanel5);
 
         panelConstantesPID.add(jPanel2);
+
+        JesusDesordenado.setDoubleBuffered(false);
 
         textFieldConstantesPID_P.setText("2");
 
@@ -462,30 +491,34 @@ public class VentanaP extends javax.swing.JFrame{
             .addGroup(panelPWMLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(buttonGraficaPWM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPWMLayout.createSequentialGroup()
-                        .addComponent(jLabel13)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(textFieldTiempoCiclo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelPWMLayout.createSequentialGroup()
                         .addGroup(panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPWMLayout.createSequentialGroup()
+                                .addComponent(jLabel13)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(textFieldTiempoCiclo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(panelPWMLayout.createSequentialGroup()
-                                .addGroup(panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addGroup(panelPWMLayout.createSequentialGroup()
-                                        .addComponent(jLabel7)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(progressBarPWMD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(panelPWMLayout.createSequentialGroup()
-                                        .addComponent(jLabel6)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(progressBarPWMI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(textFieldPWMI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(textFieldPWMD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(10, 10, 10))
+                                    .addComponent(jLabel5)
+                                    .addGroup(panelPWMLayout.createSequentialGroup()
+                                        .addGroup(panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                            .addGroup(panelPWMLayout.createSequentialGroup()
+                                                .addComponent(jLabel7)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(progressBarPWMD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(panelPWMLayout.createSequentialGroup()
+                                                .addComponent(jLabel6)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(progressBarPWMI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(textFieldPWMI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(textFieldPWMD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(10, 10, 10))
+                    .addGroup(panelPWMLayout.createSequentialGroup()
+                        .addComponent(buttonGraficaPWM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(220, 220, 220))))
         );
         panelPWMLayout.setVerticalGroup(
             panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -508,7 +541,7 @@ public class VentanaP extends javax.swing.JFrame{
                                 .addGap(34, 34, 34)
                                 .addComponent(jLabel7))))
                     .addComponent(progressBarPWMD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
                 .addGroup(panelPWMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textFieldTiempoCiclo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel13))
@@ -753,7 +786,7 @@ public class VentanaP extends javax.swing.JFrame{
             .addGroup(panelConexionLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel19)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonConectar)
                     .addComponent(buttonDesconectar))
@@ -845,10 +878,13 @@ public class VentanaP extends javax.swing.JFrame{
 
         panelUltrasonido.setBackground(new java.awt.Color(175, 221, 248));
         panelUltrasonido.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        textFieldUltrasonido.setText("Why?");
+        panelUltrasonido.setLayout(new javax.swing.BoxLayout(panelUltrasonido, javax.swing.BoxLayout.Y_AXIS));
 
         jLabel21.setText("Sensor ultrasónico");
+        panelUltrasonido.add(jLabel21);
+
+        textFieldUltrasonido.setText("Why?");
+        panelUltrasonido.add(textFieldUltrasonido);
 
         buttonGraficaUltrasonido.setText("Grafica");
         buttonGraficaUltrasonido.addActionListener(new java.awt.event.ActionListener() {
@@ -856,60 +892,165 @@ public class VentanaP extends javax.swing.JFrame{
                 buttonGraficaUltrasonidoActionPerformed(evt);
             }
         });
+        panelUltrasonido.add(buttonGraficaUltrasonido);
 
-        javax.swing.GroupLayout panelUltrasonidoLayout = new javax.swing.GroupLayout(panelUltrasonido);
-        panelUltrasonido.setLayout(panelUltrasonidoLayout);
-        panelUltrasonidoLayout.setHorizontalGroup(
-            panelUltrasonidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelUltrasonidoLayout.createSequentialGroup()
-                .addContainerGap(72, Short.MAX_VALUE)
-                .addComponent(textFieldUltrasonido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(59, 59, 59))
-            .addGroup(panelUltrasonidoLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelUltrasonidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelUltrasonidoLayout.createSequentialGroup()
-                        .addComponent(jLabel21)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(buttonGraficaUltrasonido, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        panelUltrasonidoLayout.setVerticalGroup(
-            panelUltrasonidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelUltrasonidoLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel21)
-                .addGap(26, 26, 26)
-                .addComponent(textFieldUltrasonido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(buttonGraficaUltrasonido)
-                .addContainerGap())
-        );
+        panelPWMConstante.setBackground(new java.awt.Color(175, 221, 248));
+        panelPWMConstante.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        panelPWMConstante.setLayout(new javax.swing.BoxLayout(panelPWMConstante, javax.swing.BoxLayout.Y_AXIS));
+
+        jPanel9.setLayout(new javax.swing.BoxLayout(jPanel9, javax.swing.BoxLayout.LINE_AXIS));
+
+        jLabel25.setText("PWM_MIN");
+        jPanel9.add(jLabel25);
+
+        sliderPWM_MIN.setBackground(new java.awt.Color(175, 221, 248));
+        sliderPWM_MIN.setMaximum(255);
+        sliderPWM_MIN.setValue(100);
+        sliderPWM_MIN.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sliderPWM_MINStateChanged(evt);
+            }
+        });
+        sliderPWM_MIN.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                eleased(evt);
+            }
+        });
+        sliderPWM_MIN.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                sliderPWM_MINKeyReleased(evt);
+            }
+        });
+        jPanel9.add(sliderPWM_MIN);
+
+        labelpwm_min.setText("100");
+        jPanel9.add(labelpwm_min);
+
+        panelPWMConstante.add(jPanel9);
+        panelPWMConstante.add(jSeparator3);
+
+        jPanel10.setLayout(new javax.swing.BoxLayout(jPanel10, javax.swing.BoxLayout.LINE_AXIS));
+
+        jLabel27.setText("PWM_MAX");
+        jPanel10.add(jLabel27);
+
+        sliderPWM_MAX.setBackground(new java.awt.Color(175, 221, 248));
+        sliderPWM_MAX.setMaximum(255);
+        sliderPWM_MAX.setValue(100);
+        sliderPWM_MAX.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sliderPWM_MAXStateChanged(evt);
+            }
+        });
+        sliderPWM_MAX.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                sliderPWM_MAXMouseReleased(evt);
+            }
+        });
+        sliderPWM_MAX.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                sliderPWM_MAXKeyReleased(evt);
+            }
+        });
+        jPanel10.add(sliderPWM_MAX);
+
+        labelpwm_max.setText("100");
+        jPanel10.add(labelpwm_max);
+
+        panelPWMConstante.add(jPanel10);
+        panelPWMConstante.add(jSeparator5);
+
+        jPanel11.setLayout(new javax.swing.BoxLayout(jPanel11, javax.swing.BoxLayout.LINE_AXIS));
+
+        jLabel28.setText("PWM_ABS");
+        jPanel11.add(jLabel28);
+
+        sliderPWM_ABS.setBackground(new java.awt.Color(175, 221, 248));
+        sliderPWM_ABS.setMaximum(255);
+        sliderPWM_ABS.setValue(100);
+        sliderPWM_ABS.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sliderPWM_ABSStateChanged(evt);
+            }
+        });
+        sliderPWM_ABS.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                sliderPWM_ABSMouseReleased(evt);
+            }
+        });
+        sliderPWM_ABS.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                sliderPWM_ABSKeyReleased(evt);
+            }
+        });
+        jPanel11.add(sliderPWM_ABS);
+
+        labelpwm_abs.setText("100");
+        jPanel11.add(labelpwm_abs);
+
+        panelPWMConstante.add(jPanel11);
+        panelPWMConstante.add(jSeparator4);
+
+        jPanel12.setLayout(new javax.swing.BoxLayout(jPanel12, javax.swing.BoxLayout.LINE_AXIS));
+
+        jLabel29.setText("PWM_BASE");
+        jPanel12.add(jLabel29);
+
+        sliderPWM_BASE.setBackground(new java.awt.Color(175, 221, 248));
+        sliderPWM_BASE.setMaximum(255);
+        sliderPWM_BASE.setValue(100);
+        sliderPWM_BASE.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sliderPWM_BASEStateChanged(evt);
+            }
+        });
+        sliderPWM_BASE.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                sliderPWM_BASEMouseReleased(evt);
+            }
+        });
+        sliderPWM_BASE.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                sliderPWM_BASEKeyReleased(evt);
+            }
+        });
+        jPanel12.add(sliderPWM_BASE);
+
+        labelpwm_base.setText("100");
+        jPanel12.add(labelpwm_base);
+
+        panelPWMConstante.add(jPanel12);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelConsola, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(sliderPosicion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(sliderPosicion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(panelEncoders, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(panelEncoders, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(panelUltrasonido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(panelPWMConstante, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(panelConstantesPID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(panelPWM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(panelUltrasonido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(panelConstantesPID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(panelPWM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(panelProcesoPID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(panelConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(1, 1, 1)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(panelProcesoPID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(panelConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(1, 1, 1))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(57, 57, 57)
+                        .addComponent(panelConsola, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -918,18 +1059,19 @@ public class VentanaP extends javax.swing.JFrame{
                 .addContainerGap()
                 .addComponent(sliderPosicion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(panelConstantesPID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelPWM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelProcesoPID, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelConstantesPID, javax.swing.GroupLayout.PREFERRED_SIZE, 338, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(panelProcesoPID, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(panelPWM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(panelEncoders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelUltrasonido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelConexion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(panelConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelPWMConstante, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelConsola, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(331, Short.MAX_VALUE))
         );
 
         pack();
@@ -1138,6 +1280,55 @@ public class VentanaP extends javax.swing.JFrame{
     private void Barra_DKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Barra_DKeyReleased
         enviarPIDParametros();
     }//GEN-LAST:event_Barra_DKeyReleased
+
+    private void eleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_eleased
+        enviarPWMPArametros();
+    }//GEN-LAST:event_eleased
+
+    private void sliderPWM_MINStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sliderPWM_MINStateChanged
+        PWM_MIN = (int)control_de_slider(labelpwm_min, sliderPWM_MIN.getValue(), 1);
+        //System.out.println(""+PWM_MIN);
+    }//GEN-LAST:event_sliderPWM_MINStateChanged
+
+    private void sliderPWM_MINKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sliderPWM_MINKeyReleased
+       enviarPWMPArametros();
+    }//GEN-LAST:event_sliderPWM_MINKeyReleased
+
+    private void sliderPWM_MAXKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sliderPWM_MAXKeyReleased
+        enviarPWMPArametros();
+    }//GEN-LAST:event_sliderPWM_MAXKeyReleased
+
+    private void sliderPWM_MAXStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sliderPWM_MAXStateChanged
+        PWM_MAX = (int)control_de_slider(labelpwm_max, sliderPWM_MAX.getValue(), 1);
+    }//GEN-LAST:event_sliderPWM_MAXStateChanged
+
+    private void sliderPWM_ABSKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sliderPWM_ABSKeyReleased
+        enviarPWMPArametros();
+    }//GEN-LAST:event_sliderPWM_ABSKeyReleased
+
+    private void sliderPWM_ABSStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sliderPWM_ABSStateChanged
+        PWM_ABS = (int)control_de_slider(labelpwm_abs, sliderPWM_ABS.getValue(), 1);
+    }//GEN-LAST:event_sliderPWM_ABSStateChanged
+
+    private void sliderPWM_BASEStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sliderPWM_BASEStateChanged
+        PWM_BASE = (int)control_de_slider(labelpwm_base, sliderPWM_BASE.getValue(), 1);
+    }//GEN-LAST:event_sliderPWM_BASEStateChanged
+
+    private void sliderPWM_MAXMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sliderPWM_MAXMouseReleased
+        enviarPWMPArametros();
+    }//GEN-LAST:event_sliderPWM_MAXMouseReleased
+
+    private void sliderPWM_ABSMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sliderPWM_ABSMouseReleased
+        enviarPWMPArametros();
+    }//GEN-LAST:event_sliderPWM_ABSMouseReleased
+
+    private void sliderPWM_BASEMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sliderPWM_BASEMouseReleased
+        enviarPWMPArametros();
+    }//GEN-LAST:event_sliderPWM_BASEMouseReleased
+
+    private void sliderPWM_BASEKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sliderPWM_BASEKeyReleased
+        enviarPWMPArametros();
+    }//GEN-LAST:event_sliderPWM_BASEKeyReleased
     
     private void putComando(String comando){
         
@@ -1245,6 +1436,10 @@ public class VentanaP extends javax.swing.JFrame{
             case 10:
                 writeToDataStream("C/"+partes[1]);
                 setCommandLineText("PWM cambiado");
+                break;
+            case 11:
+                writeToDataStream("f/"+partes[1]);
+                setCommandLineText("Freno de la curva cambiado a"+partes[1]+" veces.");
                 break;
             default:
                 setCommandLineText("El comando \""+comando+"\" no fue encontrado.");
@@ -1630,6 +1825,10 @@ public class VentanaP extends javax.swing.JFrame{
         }
     }
     
+    private void enviarPWMPArametros(){
+        putComando("change_pwm "+PWM_MIN+","+PWM_MAX+","+PWM_ABS+","+PWM_BASE);
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSlider Barra_D;
     private javax.swing.JSlider Barra_I;
@@ -1666,7 +1865,11 @@ public class VentanaP extends javax.swing.JFrame{
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
+    private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1674,22 +1877,38 @@ public class VentanaP extends javax.swing.JFrame{
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JSeparator jSeparator4;
+    private javax.swing.JSeparator jSeparator5;
+    private javax.swing.JLabel labelpwm_abs;
+    private javax.swing.JLabel labelpwm_base;
+    private javax.swing.JLabel labelpwm_max;
+    private javax.swing.JLabel labelpwm_min;
     private javax.swing.JPanel panelConexion;
     private javax.swing.JPanel panelConsola;
     private javax.swing.JPanel panelConstantesPID;
     private javax.swing.JPanel panelEncoders;
     private javax.swing.JPanel panelPWM;
+    private javax.swing.JPanel panelPWMConstante;
     private javax.swing.JPanel panelProcesoPID;
     private javax.swing.JPanel panelUltrasonido;
     private javax.swing.JProgressBar progressBarPWMD;
     private javax.swing.JProgressBar progressBarPWMI;
+    private javax.swing.JSlider sliderPWM_ABS;
+    private javax.swing.JSlider sliderPWM_BASE;
+    private javax.swing.JSlider sliderPWM_MAX;
+    private javax.swing.JSlider sliderPWM_MIN;
     private javax.swing.JSlider sliderPosicion;
     private javax.swing.JTextArea textAreaCommandLine;
     private javax.swing.JTextField textFieldComando;

@@ -86,8 +86,8 @@ public class GraficaPID extends Grafica{
     public void agregar(double p, double i, double d, double s){
         if(contadorCiclo > 0 && contadorCiclo % nMuestrasEnPantalla == 0){
             try {
-                this.guardarGraficaComoPNG((JFreeChart)chartPID.clone(), "PID/PID-grafica"+contadorCiclo/nMuestrasEnPantalla);
-                this.guardarGraficaComoPNG((JFreeChart)chartSuma.clone(), "PID/Suma-grafica"+contadorCiclo/nMuestrasEnPantalla);
+                this.guardarGraficaComoPNG((JFreeChart)chartPID.clone(), "PID/PID/PID-grafica"+contadorCiclo/nMuestrasEnPantalla);
+                this.guardarGraficaComoPNG((JFreeChart)chartSuma.clone(), "PID/Suma/Suma-grafica"+contadorCiclo/nMuestrasEnPantalla);
                 
             } catch (CloneNotSupportedException ex) {
                 JOptionPane.showMessageDialog(null, "Error al copiar charts");

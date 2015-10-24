@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -23,6 +24,8 @@ import org.jfree.chart.JFreeChart;
 public abstract class Grafica {
     protected JFrame ventanaGrafica;
     protected int contadorCiclo = 0;
+    private static Date date;
+    protected String fecha;
     
     public static final int nMuestrasEnPantalla = 100;
     
@@ -30,8 +33,10 @@ public abstract class Grafica {
     public Grafica(String name){
         ventanaGrafica = new JFrame(name);
         ventanaGrafica.setLayout(new GridLayout(0,1));
-        ventanaGrafica.setVisible(true);
+        //ventanaGrafica.setVisible(true);
         ventanaGrafica.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        date = new Date();
+        fecha = date.toLocaleString();
     }
     
     public void mostrarGrafica(){
@@ -49,7 +54,7 @@ public abstract class Grafica {
         (new Thread() {
             public void run() {
                 try {
-                    ChartUtilities.saveChartAsPNG(new File("graficasGuardadas/"+name+".png"), chart, 1920, 1200);
+                    ChartUtilities.saveChartAsPNG(new File("DataCollection/graficasGuardadas/"+name+"("+fecha+").png"), chart, 800, 600);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, "Grafica shit", "Oh!", JOptionPane.ERROR_MESSAGE);
                 }

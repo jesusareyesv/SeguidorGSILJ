@@ -80,7 +80,8 @@ public class GraficaPWM extends Grafica{
     public void agregarASeries(int i, int d, int tc){
         if(contadorCiclo > 0 && contadorCiclo % nMuestrasEnPantalla == 0){
             try {
-                this.guardarGraficaComoPNG((JFreeChart)chartPWM.clone(), "PWM/PWM-grafica"+contadorCiclo/nMuestrasEnPantalla);
+                this.guardarGraficaComoPNG((JFreeChart)chartPWM.clone(), "PWM/PWM_motores/PWM-grafica"+contadorCiclo/nMuestrasEnPantalla);
+                this.guardarGraficaComoPNG((JFreeChart)chartDutyCycle.clone(), "PWM/TiempoCiclo/TC-grafica"+contadorCiclo/nMuestrasEnPantalla);
             } catch (CloneNotSupportedException ex) {
                 JOptionPane.showMessageDialog(null, "Error al copiar charts");
             }

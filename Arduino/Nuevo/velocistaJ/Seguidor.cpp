@@ -29,6 +29,7 @@ void Seguidor::init(){
   PWM_MAX = pwm_max;
   PWM_ABS = pwm_ABS;
   PWM_BASE = pwm_base;
+  FRENO_CURVA = freno_Curva;
 
   infrarred_active = distance_active = true;
   robot_active = false;
@@ -123,8 +124,29 @@ void Seguidor::PID_processing(){
 
 void Seguidor::adjust_velocities(){
   //pwmM1 = pwmM2 = pwm_max;
-  change_Velocity(pwmM1,pwmM2);
-  change_Direction(1,1);
+
+  float porc_error = abs((float)(error)/(float)(desired_position));
+  /*Serial.print("Desired:");Serial.println(desired_position);
+  Serial.print("Position:");Serial.println(line_position);
+  Serial.print("Error Pos:");Serial.println(error);
+  Serial.print("Porcentaje error:");Serial.println(porc_error);*/
+
+  /*if(porc_error)
+    frenoABS(FRENO_CURVA);*/
+  if(porc_error > 0.7){
+    pwmM2 = pwmM1;
+    change_Velocity(pwmM1,pwmM2);
+    change_Direction(1,-1);
+  }else{
+    if(porc_error < -0.7){
+      pwmM1 = pwmM2;
+      change_Velocity(pwmM1,pwmM2);
+      change_Direction(-1,1);
+    }else{
+      change_Velocity(pwmM1,pwmM2);
+      change_Direction(1,1);
+    }
+  }
 }
 
 void Seguidor::set_SensorsValues_LinePosition(unsigned int* values, unsigned int lineP){
@@ -241,6 +263,10 @@ void Seguidor::communication_Read(){
           PWM_BASE = Serial1.parseInt();
 
           Serial1.print("message/PWM Cambiado -> Min=");Serial1.print(PWM_MIN);Serial1.print("/Max=");Serial1.print(PWM_MAX);Serial1.print("/ABS=");Serial1.print(PWM_ABS);Serial.print("Base");Serial.println(PWM_BASE);
+          break;
+        case 'f':
+          FRENO_CURVA = Serial1.parseInt();
+          Serial1.print("message/Freno cambiado a (veces):");Serial.println(FRENO_CURVA);
           break;
 
         case 'e':
