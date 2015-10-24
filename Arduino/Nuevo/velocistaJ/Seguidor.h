@@ -14,8 +14,10 @@
 #define pwm_max 120
 #define pwm_ABS 160
 #define pwm_base 100
+//ADDED
+#define pwm_curva 80
 
-#define freno_Curva 2
+#define freno_Curva 1
 
 #define direction_forward_M1_pin 8
 #define direction_backward_M1_pin 7
@@ -43,6 +45,10 @@ class Seguidor{
     /*Variables Agregadas*/
     int pwmM1, pwmM2, PWM_MIN,PWM_MAX, PWM_ABS, PWM_BASE, FRENO_CURVA;
     bool forward_M1, backward_M1, forward_M2, backward_M2;
+    int delay1,delay2, delay_o1,delay_o2,delay_o3,delay_o4;
+    float giro_loco_porc;
+
+    float tolerancia_dinamica;
 
     long position_encoder_M1, position_encoder_antes_M1;
     long position_encoder_M2, position_encoder_antes_M2;
@@ -84,4 +90,7 @@ class Seguidor{
     void runing_Seguidor();
 
     bool isRobot_active();
+
+    //ADDED
+    void avoid();
 };

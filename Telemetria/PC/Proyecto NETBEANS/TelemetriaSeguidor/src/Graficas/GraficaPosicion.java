@@ -22,6 +22,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  */
 public class GraficaPosicion extends Grafica {
     private final XYSeries posiciones = new XYSeries("Valores de la posición");
+    private final XYSeries centro = new XYSeries("Centro");
     private XYSeriesCollection coleccion = new XYSeriesCollection();
     
     private JFreeChart chart;
@@ -32,6 +33,7 @@ public class GraficaPosicion extends Grafica {
         this.agregarLista(pos);
         
         coleccion.addSeries(posiciones);
+        coleccion.addSeries(centro);
         
         chart = ChartFactory.createXYLineChart("Posicion de la linea", "Ciclo", "Valor de la libreria", coleccion, PlotOrientation.HORIZONTAL, true, true, false);
         
@@ -52,6 +54,7 @@ public class GraficaPosicion extends Grafica {
         
         for (int ciclo = inicio; ciclo < p.size(); ciclo++) {
             posiciones.add(ciclo+1, p.get(ciclo));
+            centro.add(ciclo+1,2500);
         }
         
         contadorCiclo = p.size();
@@ -66,10 +69,13 @@ public class GraficaPosicion extends Grafica {
             }
         }
         
-        if(contadorCiclo > nMuestrasEnPantalla)
+        if(contadorCiclo > nMuestrasEnPantalla){
             posiciones.remove(0);
+            centro.remove(0);
+        }
         
         posiciones.add(contadorCiclo, p);
+        centro.add(contadorCiclo,2500);
         
         contadorCiclo++;
     }

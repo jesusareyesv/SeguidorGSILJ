@@ -30,7 +30,7 @@ public abstract class ArchivoEscritura {
     
     public void changeFile(String fileName){
         try {
-            bufferEscritura = new BufferedWriter(new FileWriter(fileName));
+            bufferEscritura = new BufferedWriter(new FileWriter("DataCollection/data_texto/"+fileName));
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "No se pudo abrir el archivo.", "ERROR", JOptionPane.ERROR_MESSAGE);
         }

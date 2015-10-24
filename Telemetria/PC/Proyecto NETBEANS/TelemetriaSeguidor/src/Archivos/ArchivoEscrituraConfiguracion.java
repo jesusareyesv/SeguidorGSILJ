@@ -25,7 +25,6 @@ public class ArchivoEscrituraConfiguracion extends ArchivoEscritura {
         D_c = d;
         infra = in;
         distancia = dist;
-        
         escribir();
     }
     

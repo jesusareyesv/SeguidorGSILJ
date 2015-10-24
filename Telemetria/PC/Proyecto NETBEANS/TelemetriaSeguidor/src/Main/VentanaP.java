@@ -18,6 +18,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 import javax.swing.Action;
 import javax.swing.JLabel;
@@ -60,8 +61,8 @@ public class VentanaP extends javax.swing.JFrame{
     
     private Random rnd = new Random();
     
-    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo","change_pwm","freno_c"};
-    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión.","Cambia los limites pwm del arduino. OPCIONES [pwmMinima,pwmMaxima,pwmFrenoABS].","Numero de veces que se ejecuta el freno en las curvas."};
+    public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo","change_pwm","freno_c","c_tolerancia","c_delay"};
+    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión.","Cambia los limites pwm del arduino. OPCIONES [pwmMinima,pwmMaxima,pwmFrenoABS].","Numero de veces que se ejecuta el freno en las curvas.","Cambia la tolerancia en las curvas.","Cambia el delay obstaculo."};
     private String clave;
     
     /**
@@ -291,8 +292,8 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel24.setText("P");
         jPanel4.add(jLabel24);
 
-        Barra_P.setMaximum(1000);
-        Barra_P.setValue(500);
+        Barra_P.setMaximum(100000);
+        Barra_P.setValue(50000);
         Barra_P.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 Barra_PStateChanged(evt);
@@ -323,8 +324,8 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel22.setText("I");
         jPanel3.add(jLabel22);
 
-        Barra_I.setMaximum(1000);
-        Barra_I.setValue(500);
+        Barra_I.setMaximum(100000);
+        Barra_I.setValue(50000);
         Barra_I.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 Barra_IStateChanged(evt);
@@ -355,8 +356,8 @@ public class VentanaP extends javax.swing.JFrame{
         jLabel26.setText("D");
         jPanel5.add(jLabel26);
 
-        Barra_D.setMaximum(1000);
-        Barra_D.setValue(500);
+        Barra_D.setMaximum(100000);
+        Barra_D.setValue(50000);
         Barra_D.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 Barra_DStateChanged(evt);
@@ -1113,6 +1114,7 @@ public class VentanaP extends javax.swing.JFrame{
     private void buttonDesconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDesconectarActionPerformed
         boolean desconectado = communicator.parar();
         
+        guardarEnArchivos();
         if(desconectado){
             readerTimer.stop();
             buttonConectar.setBackground(Color.BLUE);
@@ -1219,8 +1221,7 @@ public class VentanaP extends javax.swing.JFrame{
         
         switch(showOptionDialog){
             case 0:
-                new Archivos.ArchivoEscrituraConfiguracion("Hola", Double.parseDouble(this.textFieldConstantesPID_P.getText()), Double.parseDouble(this.textFieldConstantesPID_I.getText()), Double.parseDouble(this.textFieldConstantesPID_D.getText()), 1, 0);
-                new Archivos.ArchivoEscrituraData("data", this.proportionalFRobotList, this.integralFRobotList, this.derivativeFRobotList, this.plusValuesFRobotList, this.encoderW1List, this.encoderW2List, this.encoderA1List, this.encoderA2List, this.PWMLList, this.PWMRList, this.positionList, null, cycleTimeList);
+                guardarEnArchivos();
                 break;
             case 1:break;
             case 2:break;
@@ -1252,7 +1253,7 @@ public class VentanaP extends javax.swing.JFrame{
 
     private void Barra_PStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Barra_PStateChanged
         textFieldConstantesPID_P.setText(String.valueOf(P));
-        P = control_de_slider(Label_P, Barra_P.getValue(), 100);
+        P = control_de_slider(Label_P, Barra_P.getValue(), 10000);
     }//GEN-LAST:event_Barra_PStateChanged
 
     private void Barra_PMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Barra_PMouseReleased
@@ -1261,7 +1262,7 @@ public class VentanaP extends javax.swing.JFrame{
 
     private void Barra_IStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Barra_IStateChanged
         textFieldConstantesPID_I.setText(String.valueOf(I));
-        I = control_de_slider(Label_I, Barra_I.getValue(), 100);
+        I = control_de_slider(Label_I, Barra_I.getValue(), 10000);
     }//GEN-LAST:event_Barra_IStateChanged
 
     private void Barra_IMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Barra_IMouseReleased
@@ -1274,7 +1275,7 @@ public class VentanaP extends javax.swing.JFrame{
 
     private void Barra_DStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Barra_DStateChanged
         textFieldConstantesPID_D.setText(String.valueOf(D));
-        D = control_de_slider(Label_D, Barra_D.getValue(), 100);
+        D = control_de_slider(Label_D, Barra_D.getValue(), 10000);
     }//GEN-LAST:event_Barra_DStateChanged
 
     private void Barra_DKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Barra_DKeyReleased
@@ -1329,6 +1330,12 @@ public class VentanaP extends javax.swing.JFrame{
     private void sliderPWM_BASEKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sliderPWM_BASEKeyReleased
         enviarPWMPArametros();
     }//GEN-LAST:event_sliderPWM_BASEKeyReleased
+    
+    private void guardarEnArchivos(){
+            Date fecha = new Date();
+        new Archivos.ArchivoEscrituraConfiguracion("Configuracion-"+fecha.toLocaleString()+"-", Double.parseDouble(this.textFieldConstantesPID_P.getText()), Double.parseDouble(this.textFieldConstantesPID_I.getText()), Double.parseDouble(this.textFieldConstantesPID_D.getText()), 1, 0);
+        new Archivos.ArchivoEscrituraData("Data-"+fecha.toLocaleString()+"-", this.proportionalFRobotList, this.integralFRobotList, this.derivativeFRobotList, this.plusValuesFRobotList, this.encoderW1List, this.encoderW2List, this.encoderA1List, this.encoderA2List, this.PWMLList, this.PWMRList, this.positionList, null, cycleTimeList);
+    }
     
     private void putComando(String comando){
         
@@ -1439,7 +1446,15 @@ public class VentanaP extends javax.swing.JFrame{
                 break;
             case 11:
                 writeToDataStream("f/"+partes[1]);
-                setCommandLineText("Freno de la curva cambiado a"+partes[1]+" veces.");
+                setCommandLineText("Freno de la curva y delays= "+partes[1]);
+                break;
+            case 12:
+                writeToDataStream("t/"+partes[1]);
+                setCommandLineText("Tolerancia cambiada a "+partes[1]);
+                break;
+            case 13:
+                writeToDataStream("o/"+partes[1]);
+                setCommandLineText("Delay del obstáculo cambiado a "+partes[1]);
                 break;
             default:
                 setCommandLineText("El comando \""+comando+"\" no fue encontrado.");
@@ -1738,7 +1753,7 @@ public class VentanaP extends javax.swing.JFrame{
                                 else
                                     mensaje += "inactivo";
                                 
-                                mensaje += ".";
+                                mensaje += "\nP:"+cadenas[3]+"\nI: "+cadenas[4]+"\nD:"+cadenas[5]+"\nPWM_MIN="+cadenas[6]+"\nPWM_MAX="+cadenas[7]+"\nPWM_ABS="+cadenas[8]+"\nPWM_BASE="+cadenas[9]+"\nTolerancia dinamica="+cadenas[10]+"\nFreno curva:"+cadenas[11]+"\nDelay1: "+cadenas[12]+"\nDelay2: "+cadenas[13]+"\nDelay_o1: "+cadenas[14]+"\nDelay_o2: "+cadenas[15]+"\nDelay_o3: "+cadenas[16]+"\nDelay_o4: "+cadenas[17]+"\nGiro_loco_porc="+cadenas[18];                                
                                             
                                 JOptionPane.showMessageDialog(this, mensaje, "STATUS DEL ROBOT!!!", JOptionPane.INFORMATION_MESSAGE);
                             }

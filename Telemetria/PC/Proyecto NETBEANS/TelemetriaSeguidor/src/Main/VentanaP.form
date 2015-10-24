@@ -168,8 +168,8 @@
                 </Component>
                 <Component class="javax.swing.JSlider" name="Barra_P">
                   <Properties>
-                    <Property name="maximum" type="int" value="1000"/>
-                    <Property name="value" type="int" value="500"/>
+                    <Property name="maximum" type="int" value="100000"/>
+                    <Property name="value" type="int" value="50000"/>
                   </Properties>
                   <Events>
                     <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="Barra_PStateChanged"/>
@@ -207,8 +207,8 @@
                 </Component>
                 <Component class="javax.swing.JSlider" name="Barra_I">
                   <Properties>
-                    <Property name="maximum" type="int" value="1000"/>
-                    <Property name="value" type="int" value="500"/>
+                    <Property name="maximum" type="int" value="100000"/>
+                    <Property name="value" type="int" value="50000"/>
                   </Properties>
                   <Events>
                     <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="Barra_IStateChanged"/>
@@ -246,8 +246,8 @@
                 </Component>
                 <Component class="javax.swing.JSlider" name="Barra_D">
                   <Properties>
-                    <Property name="maximum" type="int" value="1000"/>
-                    <Property name="value" type="int" value="500"/>
+                    <Property name="maximum" type="int" value="100000"/>
+                    <Property name="value" type="int" value="50000"/>
                   </Properties>
                   <Events>
                     <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="Barra_DStateChanged"/>
