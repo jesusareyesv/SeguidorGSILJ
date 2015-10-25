@@ -56,7 +56,7 @@ public abstract class Grafica {
                 try {
                     ChartUtilities.saveChartAsPNG(new File("DataCollection/graficasGuardadas/"+name+"("+fecha+").png"), chart, 800, 600);
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(null, "Grafica shit", "Oh!", JOptionPane.ERROR_MESSAGE);
+                    //JOptionPane.showMessageDialog(null, "Grafica shit", "Oh!", JOptionPane.ERROR_MESSAGE);
                 }
                 System.out.println("Hilo");
             }

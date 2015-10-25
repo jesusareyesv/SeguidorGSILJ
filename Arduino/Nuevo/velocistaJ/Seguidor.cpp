@@ -37,10 +37,10 @@ void Seguidor::init(){
   tolerancia_dinamica = 0.9;
   delay1 = 20;
   delay2 = 30;
-  delay_o1 = delay_o4 = 100;
+  delay_o1 = delay_o4 = 300;
   delay_o2 = 100;
-  delay_o3 = 1000;
-  giro_loco_porc = 0.3;
+  delay_o3 = 1200;
+  giro_loco_porc = 0.2;
 //  t_inicio = millis();
 //  t_anterior = t_actual = millis();
 }//like python
@@ -467,10 +467,10 @@ void Seguidor::avoid(){
   change_Velocity(pwm_curva * giro_loco_porc, pwm_curva);
   change_Direction(1,1);
   delay(delay_o3);
-  change_Direction(0,0);
+  /*change_Direction(0,0);
   change_Velocity(pwm_curva, pwm_curva);
-  change_Direction(-1,1);
-  delay(delay_o4);
+  change_Direction(1,-1);
+  delay(delay_o4);*/
   /*digitalWrite(forwardM2,LOW);
   digitalWrite(backwardM2,HIGH);
   analogWrite(pwmM1,pwm_run);

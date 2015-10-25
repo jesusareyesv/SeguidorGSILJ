@@ -2,9 +2,9 @@
 #include <Encoder.h>
 #include "Seguidor.h"
 
-#define Kp 0.5
-#define Ki 0
-#define Kd 4
+#define Kp 0.02
+#define Ki 1.2903
+#define Kd 0.19
 
 #define muestras_sensor 4
 

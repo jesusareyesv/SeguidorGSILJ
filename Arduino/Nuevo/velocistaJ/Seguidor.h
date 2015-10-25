@@ -11,9 +11,9 @@
 #define pwmM2_pin 11
 
 #define pwm_min 0
-#define pwm_max 120
-#define pwm_ABS 160
-#define pwm_base 100
+#define pwm_max 60
+#define pwm_ABS 76
+#define pwm_base 43
 //ADDED
 #define pwm_curva 80
 
