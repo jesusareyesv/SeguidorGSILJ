@@ -13,12 +13,12 @@
 #define pwmM2_pin 11
 
 #define pwm_min 0
-//#define pwm_max 70
-//#define pwm_ABS 80
-//#define pwm_base 35
-#define pwm_max 110
-#define pwm_ABS 119
-#define pwm_base 73
+#define pwm_max 70
+#define pwm_ABS 80
+#define pwm_base 43
+//#define pwm_max 110
+//#define pwm_ABS 119
+//#define pwm_base 73
 //ADDED
 #define pwm_curva 80
 #define giro_loco 0.23
@@ -31,7 +31,7 @@
 #define direction_backward_M2_pin 5
 
 #define tiempo_giro 300
-#define pwm_giro_recta 35
+#define pwm_giro_recta 40
 #define tiempo_recta 400
 
 #define bypass_time_encoders 100
@@ -101,7 +101,7 @@ class Seguidor{
     float calcularDiferenciaAngulo(long posicion_original_M1, long posicion_original_M2);
     float calcularDiferenciaDistancia(long posicion_original_M1, long posicion_original_M2);
     void rotarAngulo(float angulo);
-    void avanzar_Encoders(float distancia);
+    void avanzar_Encoders(float distancia, bool bandera);
 
     
     void init();//like python

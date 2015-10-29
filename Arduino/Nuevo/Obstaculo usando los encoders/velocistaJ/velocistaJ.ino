@@ -10,8 +10,10 @@
 
 #ifndef TELEMETRIA_ON
 
-  #define Kp 0.0314
-  #define Ki 0.07
+  //#define Kp 0.0314
+  //#define Ki 0.07
+  #define Kp 0.02
+  #define Ki 0.05
 
   #define encoderA1_pin 3
   #define encoderB1_pin 0

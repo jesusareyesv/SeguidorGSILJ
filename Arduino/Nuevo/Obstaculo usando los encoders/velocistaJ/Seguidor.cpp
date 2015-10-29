@@ -236,32 +236,41 @@ bool Seguidor::isRobot_active(){
 }
 
 void Seguidor::avoid(){
-  frenoABS(1);
+  frenoABS(2);
 
-  delay(1000);
-  if(ultima_curva == 1){
-    rotarAngulo(-45);
+    rotarAngulo(25);
     delay(50);
-    rotarAngulo(-45);
+    rotarAngulo(25);
     delay(50);
-    avanzar_Encoders(35);
+    avanzar_Encoders(37,false);
     delay(50);
-    rotarAngulo(95);
+    rotarAngulo(-70);
     delay(50);
-    //avanzar_Encoders(35);
+    avanzar_Encoders(37,false);
     change_Velocity(70,70);
-  }else{
-    rotarAngulo(45);
+    
+    /*rotarAngulo(30);
     delay(50);
-    rotarAngulo(45);
+    rotarAngulo(30);
     delay(50);
-    avanzar_Encoders(35);
+    avanzar_Encoders(35,false);
     delay(50);
-    rotarAngulo(-95);
+    rotarAngulo(-70);
     delay(50);
-    //avanzar_Encoders(35);
+    avanzar_Encoders(37,true);
     change_Velocity(70,70);
-  }
+*/
+    /*rotarAngulo(80);
+    rotarAngulo(80);
+    delay(50);
+    avanzar_Encoders(14,false);
+    delay(50);
+    rotarAngulo(-90);
+    delay(50);
+    avanzar_Encoders(20,false);
+    delay(50);
+    rotarAngulo(-30);
+    avanzar_Encoders(28,false);*/
 
   in_obstaculo = true;
   //robot_active = false;
@@ -313,7 +322,7 @@ void Seguidor::rotarAngulo(float angulo){
   change_Direction(0,0);
 }
 
-void Seguidor::avanzar_Encoders(float distancia){
+void Seguidor::avanzar_Encoders(float distancia, bool bandera){
   long partida_m1 = position_encoder_M1, partida_m2 = position_encoder_M2;
   change_Velocity(pwm_giro_recta,pwm_giro_recta);
 
@@ -322,8 +331,10 @@ void Seguidor::avanzar_Encoders(float distancia){
   else
     if(distancia < 0)
       change_Direction(-1,-1);
-
-  while(calcularDiferenciaDistancia(partida_m1,partida_m2) < distancia);
+  if(!bandera)
+    while(calcularDiferenciaDistancia(partida_m1,partida_m2) < distancia);
+  else
+    while(calcularDiferenciaDistancia(partida_m1,partida_m2) < distancia && !comprobar_Sensores_obstaculo());
 
 
   change_Direction(0,0);
