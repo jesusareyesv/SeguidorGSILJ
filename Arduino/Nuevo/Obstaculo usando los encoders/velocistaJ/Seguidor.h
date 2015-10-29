@@ -1,7 +1,17 @@
+#include <Encoder.h>
 #include <Arduino.h>
 
 //#define nSensors 6//----------------------------------------------------------------OJO
 #define nSensors 8//----------------------------------------------------------------OJO
+
+/*#define encoderA1_pin 3
+#define encoderB1_pin 0
+#define encoderA2_pin 2
+#define encoderB2_pin 1*/
+/*#define A1_pin 3
+#define B1_pin 0
+#define A2_pin 2
+#define B2_pin 1*/
 
 #define desired_position (nSensors - 1)*500
 
@@ -30,7 +40,7 @@
 #define direction_backward_M2_pin 5
 
 #define tiempo_giro 300
-#define pwm_giro_recta 50
+#define pwm_giro_recta 35
 #define tiempo_recta 400
 
 #define bypass_time_encoders 100
@@ -39,7 +49,10 @@
 
 #define distance_sensor_pin 13
 
+//const int a1_pin = 3;
+
 class Seguidor{
+    Encoder *encoder_M1, *encoder_M2;
     /*Variables Agregadas*/
 
     //long rev = 0;
@@ -79,17 +92,25 @@ class Seguidor{
     bool infrarred_active, distance_active, robot_active;
 
     bool in_obstaculo;
-    
+
     int distance_sensor;
 
+    int direccion_M1, direccion_M2;
+
   public:
-    Seguidor(double kp,double ki,double kd);
+    Seguidor(double kp,double ki,double kd, Encoder *e1, Encoder *e2);
 
     void change_Direction(int M1,int M2);
     void PID_processing();
     void adjust_velocities();
     void set_SensorsValues_LinePosition(unsigned int* values, unsigned int lineP);
-    void set_Positions_Encoders(long pem1, long pem2);
+
+    //void set_Positions_Encoders(long pem1, long pem2);
+    void leerEncoders();
+    float calcularDiferenciaAngulo(long posicion_original_M1, long posicion_original_M2);
+    void rotarAngulo(float angulo);
+    void avanzar_Encoders();
+
     void calculate_angular_values();
     void init();//like python
     void emergency_stop();

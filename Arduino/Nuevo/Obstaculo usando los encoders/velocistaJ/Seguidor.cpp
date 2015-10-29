@@ -1,9 +1,12 @@
 #include "Seguidor.h"
 
-Seguidor::Seguidor(double kp,double ki,double kd){
+Seguidor::Seguidor(double kp,double ki,double kd, Encoder *e1, Encoder *e2){
   this->k_P = kp;
   this->k_I = ki;
   this->k_D = kd;
+
+  this->encoder_M1 = e1;
+  this->encoder_M2 = e2;
 
   this->proportional = this->derivative = this->integral = 0;
   this->init();
@@ -49,7 +52,17 @@ void Seguidor::init(){
 
 void Seguidor::runing_Seguidor(){
   //communication_principal();//----------------------------------------------------------------OJO
-  if(robot_active){
+  //this->leerEncoders();
+  //this->calcularDiferenciaAngulo(0,0);
+  this->rotarAngulo(-45);
+  delay(5000);
+  this->rotarAngulo(90);
+  delay(5000);
+  this->rotarAngulo(45);
+  delay(5000);
+  this->rotarAngulo(-180);
+  delay(10000);
+  /*if(robot_active){
     Serial.println("Activo");
     if(!infrarred_active)
       line_position = desired_position;
@@ -100,7 +113,7 @@ void Seguidor::runing_Seguidor(){
   actual_time = millis();
 
   loop_time = actual_time - before_time;
-  before_time = actual_time;
+  before_time = actual_time;*/
 }
 
 void Seguidor::change_Direction(int M1,int M2){
@@ -133,6 +146,9 @@ void Seguidor::change_Direction(int M1,int M2){
       digitalWrite(direction_backward_M2_pin,HIGH);
       break;
   }
+
+  direccion_M1 = M1;
+  direccion_M2 = M2;
 }
 
 void Seguidor::PID_processing(){
@@ -215,10 +231,10 @@ void Seguidor::set_SensorsValues_LinePosition(unsigned int* values, unsigned int
   Serial.println(lineP);
 }
 
-void Seguidor::set_Positions_Encoders(long pem1, long pem2){
+/*void Seguidor::set_Positions_Encoders(long pem1, long pem2){
   position_encoder_M1 = pem1;
   position_encoder_M2 = pem2;
-}
+}*/
 
 void Seguidor::calculate_angular_values(){
   double revoluciones_M1 = (position_encoder_M1 - position_encoder_antes_M1)/120.0;
@@ -539,4 +555,43 @@ bool Seguidor::comprobar_Sensores_obstaculo(){
       return true;
   }
   return false;
+}
+
+void Seguidor::leerEncoders(){
+  this->position_encoder_M1 = encoder_M1->read();
+  this->position_encoder_M2 = encoder_M2->read();
+
+  Serial.print("Encoder1: "); Serial.print(position_encoder_M1);Serial.print("     Encoder2: ");Serial.println(position_encoder_M2);
+}
+
+float Seguidor::calcularDiferenciaAngulo(long posicion_original_M1, long posicion_original_M2){
+  leerEncoders();
+  long dif_p_e1 = abs(position_encoder_M1 - posicion_original_M1), dif_p_e2 = abs(position_encoder_M2 - posicion_original_M2);
+
+  long dif_position_ambos_encoders = dif_p_e1 + dif_p_e2;
+
+  float angulo = dif_position_ambos_encoders * 45 / 120;
+
+  Serial.print("Angulo: ");Serial.println(angulo);
+
+  return angulo;
+}
+
+void Seguidor::rotarAngulo(float angulo){
+  long base_m1 = position_encoder_M1, base_m2 = position_encoder_M2;
+
+  change_Velocity(pwm_giro_recta,pwm_giro_recta);
+  if(angulo < 0)
+    change_Direction(1,-1);
+  else
+    if(angulo > 0)
+      change_Direction(-1,1);
+    else
+      change_Direction(0,0);
+
+  while(calcularDiferenciaAngulo(base_m1,base_m2) < abs(angulo));
+
+  Serial.println("SalióooooooooooooooooooooooooooooooooooooooOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  change_Direction(0,0);
+  //delay(10000);
 }
