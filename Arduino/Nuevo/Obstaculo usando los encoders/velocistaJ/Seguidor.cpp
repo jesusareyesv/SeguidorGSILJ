@@ -23,11 +23,6 @@ void Seguidor::init(){
   pinMode(stby_pin,OUTPUT);
   pinMode(distance_sensor_pin,INPUT);
 
-  /*pinMode(encoderA1_pin,INPUT);
-  pinMode(encoderA2_pin,INPUT);
-  pinMode(encoderB1_pin,INPUT);
-  pinMode(encoderB2_pin,INPUT);*/
-
   PWM_MIN = pwm_min;
   PWM_MAX = pwm_max;
   PWM_ABS = pwm_ABS;
@@ -51,30 +46,31 @@ void Seguidor::init(){
 }//like python
 
 void Seguidor::runing_Seguidor(){
+  //avoid();
   //communication_principal();//----------------------------------------------------------------OJO
   //this->leerEncoders();
   //this->calcularDiferenciaAngulo(0,0);
+  /*if(comprobar_Sensores_obstaculo())
+    Serial.println("Linea encontrada!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  else
+    Serial.println("NADAAAAAAAAAAAAAAAAAAAAAAAAA!");
 
+  delay(200);*/
   if(robot_active){
-    Serial.println("Activo");
+    //Serial.println("Activo");
     if(!infrarred_active)
       line_position = desired_position;
 
-    distance_sensor = 0;
-    if(distance_active)
-      if(digitalRead(distance_sensor_pin) == HIGH){
-        distance_sensor = 1;
-      }else{
-        avoid();
-      }
-
-    difference_time = actual_time - encoders_time;
-    if(difference_time >= bypass_time_encoders){
-      this->calculate_angular_values();
-      encoders_time = actual_time;
-    }
-
     if(!in_obstaculo){
+      
+      distance_sensor = 0;
+      if(distance_active)
+        if(digitalRead(distance_sensor_pin) == HIGH){
+          distance_sensor = 1;
+        }else{
+          avoid();
+        }
+
       PID_processing();
       adjust_velocities();
 
@@ -96,6 +92,10 @@ void Seguidor::runing_Seguidor(){
       if(comprobar_Sensores_obstaculo()){
         in_obstaculo = false;
         summatory_time = millis();
+        Serial.println("Linea");
+      }else{
+        change_Direction(1,1);
+        Serial.println("NADA");
       }
     }
   }else{
@@ -145,10 +145,7 @@ void Seguidor::change_Direction(int M1,int M2){
 }
 
 void Seguidor::PID_processing(){
-  Serial.print("Desired");Serial.println();
   error = double(line_position) - double(desired_position);
-  //error =
-  /*Los separé para control*/
   proportional = k_P * error;
   derivative = k_D * (error - error_antes);
   suma_integral += error;
@@ -158,55 +155,40 @@ void Seguidor::PID_processing(){
   integral = k_I * suma_integral;
 
   sumaPID = proportional + derivative + integral;
-  //Serial.print("P:");Serial.print(proportional);Serial.print("D: ");Serial.println(derivative);
+
   error_antes   = error;
   pwmM1  = PWM_BASE + sumaPID;
   pwmM2  = PWM_BASE - sumaPID;
-  //Serial.print("pwm1: ");Serial.print(pwmM1);Serial.print(" pwm2: ");Serial.println(pwmM2);
+
 }
 
 void Seguidor::adjust_velocities(){
-  //pwmM1 = pwmM2 = pwm_max;
 
   float porc_error = (float)(error)/(float)(desired_position);
-  /*Serial.print("Desired:");Serial.println(desired_position);
-  Serial.print("Position:");Serial.println(line_position);
-  Serial.print("Error Pos:");Serial.println(error);
-  Serial.print("Porcentaje error:");Serial.println(porc_error);*/
-
-  /*if(porc_error)
-    frenoABS(FRENO_CURVA);*/
-
-    /*change_Velocity(pwmM1,pwmM2);
-    change_Direction(1,1);*/
-    /*int diff_pwm_M1 = frequency_error_M1*255/50;
-    int diff_pwm_M2 = frequency_error_M2*255/50;*/
-
-
 
     int dM1, dM2;
 
     if(pwmM1 < 0){
       dM1 = -1;
       pwmM1 *= -1;
-      //pwmM1 = PWM_ANY_CURVA;
+
     }else{
       dM1 = 1;
     }
-    //pwmM1 += diff_pwm_M1;
+
 
     if(pwmM2 < 0){
       dM2 = -1;
       pwmM2 *= -1;
-      //pwmM2 = PWM_ANY_CURVA;
+
     }else{
       dM2 = 1;
     }
-    //pwmM1 += diff_pwm_M2;
+
 
 
   if(porc_error > tolerancia_dinamica || porc_error < -tolerancia_dinamica){
-    //pwmM2 = pwmM1;
+
     frenoABS(FRENO_CURVA);
     change_Velocity(pwmM1,pwmM2);
     change_Direction(dM1,dM2);
@@ -222,37 +204,6 @@ void Seguidor::set_SensorsValues_LinePosition(unsigned int* values, unsigned int
   this->sensors_values = values;
   line_position = lineP;
   Serial.println(lineP);
-}
-
-/*void Seguidor::set_Positions_Encoders(long pem1, long pem2){
-  position_encoder_M1 = pem1;
-  position_encoder_M2 = pem2;
-}*/
-
-void Seguidor::calculate_angular_values(){
-  double revoluciones_M1 = (position_encoder_M1 - position_encoder_antes_M1)/120.0;
-  double revoluciones_M2 = (position_encoder_M2 - position_encoder_antes_M2)/120.0;
-
-/*  if(rev < 0)
-    rev *=-1;*/
-
-  v_angular_M1_antes = v_angular_M1;
-  v_angular_M2_antes = v_angular_M2;
-
-  frequency_M1 = revoluciones_M1/ double(difference_time/1000.0);
-  frequency_error_M1 = abs(pwmM1*50/255.0 - frequency_M1);
-
-  frequency_M2 = revoluciones_M2/ double(difference_time/1000.0);
-  frequency_error_M2 = abs(pwmM2*50/255.0 - frequency_M2);
-  /*Añadido*/
-  position_encoder_antes_M1 = position_encoder_M1;
-  position_encoder_antes_M2 = position_encoder_M2;
-  /*Añadido*/
-  v_angular_M1 = 6.28*frequency_M1;
-  a_angular_M1 = v_angular_M1 - v_angular_M1_antes;
-
-  v_angular_M2 = 6.28*frequency_M2;
-  a_angular_M2 = v_angular_M2 - v_angular_M2_antes;
 }
 
 void Seguidor::emergency_stop(){
@@ -283,246 +234,34 @@ void Seguidor::change_Velocity(int vm1, int vm2){
 bool Seguidor::isRobot_active(){
   return this->robot_active;
 }
-//---------------------------COMMUNICATION
 
-void Seguidor::communication_principal(){
-  communication_Read();
-  if(robot_active)
-    communication_Write();
-}
-
-void Seguidor::communication_Read(){
-  if(Serial1.available()){
-    char ordenActual = Serial1.read();
-
-    switch(ordenActual){
-      case 'p':robot_active = false; Serial1.println("message/Detenido");summatory_time = millis();break;//correr
-
-      case 'r':robot_active = true ; Serial1.println("message/Activo");break;//parar
-
-      case 's': status(); break;//comprobar estado
-
-      case 'v'://cambia los valores de las constantes PID
-        k_P = (double)Serial1.parseInt()/(double)10000.0000;
-        k_I = (double)Serial1.parseInt()/(double)10000.0000;
-        k_D = (double)Serial1.parseInt()/(double)10000.0000;
-
-        Serial1.print("message/Constantes cambiadas -> P=");Serial1.print(k_P);Serial1.print("/I=");Serial1.print(k_I);Serial1.print("/D=");Serial1.println(k_D);
-        //Serial.print("message/Constantes cambiadas -> P=");Serial.print(P_const);Serial.print("/I=");Serial.print(I_const);Serial.print("/D=");Serial.println(D_const);
-        break;
-
-      case 'a'://activa sensores
-        onOffSensors(true);
-        break;
-
-      case 'd': //desactiva sensores
-          onOffSensors(false);
-        break;
-
-        case 'k':
-            //clave = Serial1.parseInt();
-            //Serial1.print("message/Clave cambiada a:");Serial1.println(clave);
-            //Serial.print("message/Clave cambiada a:");Serial.println(clave);
-          break;
-
-        case 'C':
-          PWM_MIN = Serial1.parseInt();
-          PWM_MAX = Serial1.parseInt();
-          PWM_ABS = Serial1.parseInt();
-          PWM_BASE = Serial1.parseInt();
-          PWM_ANY_CURVA = PWM_MAX*0.5;
-
-          Serial1.print("message/PWM Cambiado -> Min=");Serial1.print(PWM_MIN);Serial1.print("/Max=");Serial1.print(PWM_MAX);Serial1.print("/ABS=");Serial1.print(PWM_ABS);Serial.print("Base");Serial.println(PWM_BASE);
-          break;
-        case 'f':
-          FRENO_CURVA = Serial1.parseInt();
-          delay1 = Serial1.parseInt();
-          delay2 = Serial1.parseInt();
-          Serial1.print("message/Freno cambiado a (veces):");Serial.print(FRENO_CURVA);Serial1.print("/delay1:");Serial1.print(delay1);Serial1.print("/delay2:");Serial1.println(delay2);
-          break;
-        case 't':
-          tolerancia_dinamica = Serial1.parseFloat();
-          Serial1.print("message/Tolerancia=");Serial1.println(tolerancia_dinamica);
-          break;
-        case 'o':
-          delay_o1 = Serial1.parseInt();
-          delay_o2 = Serial1.parseInt();
-          delay_o3 = Serial1.parseInt();
-          delay_o4 = Serial1.parseInt();
-          giro_loco_porc = Serial1.parseInt()/100.0;
-          Serial.println("message/Delays de obsttaculo cambiados.");
-        break;
-
-        case 'e':
-          String sssss = Serial1.readString();
-          Serial1.print("message/ECHO=");Serial1.println(sssss);
-          //Serial.print("message/ECHO=");Serial.println(sssss);
-          break;
-
-    }
-    //Serial1.flush();OJO PROBAR FUNCIONALIDAD
-  }
-}
-
-void Seguidor::communication_Write(){
-  /*Serial.println(error);
-  Serial.print("data/");
-  Serial.print(proportional);Serial.print("   ");
-  Serial.print("/");
-  Serial.print(integral);Serial.print("   ");
-  Serial.print("/");
-  Serial.print(derivative);Serial.print("   ");
-  Serial.print("/");
-  Serial.print(sumaPID);Serial.println();
-  Serial.print("/");
-  Serial.print(pwmM1);Serial.print("   ");//Serial1.print(PWMI);
-  Serial.print("/");
-  Serial.print(pwmM2);Serial.print("   ");//Serial1.print(PWMD);
-  Serial.print("/");
-  Serial.print(loop_time);Serial.println();
-  Serial.print("/");
-  Serial.print(line_position);Serial.println();//posicion de la linea
-  Serial.print("/");
-  Serial.print(distance_sensor);//(1) si obstaculo, (0) si no
-  Serial.print("/");
-  Serial.print(v_angular_M1);
-  Serial.print("/");
-  Serial.print(v_angular_M2);
-  Serial.print("/");
-  Serial.print(a_angular_M1);
-  Serial.print("/");
-  Serial.println(a_angular_M2);
-  Serial.println();Serial.println();Serial.println();*/
-
-  Serial1.print("data/");
-      Serial1.print(proportional);
-      Serial1.print("/");
-      Serial1.print(integral);
-      Serial1.print("/");
-      Serial1.print(derivative);
-      Serial1.print("/");
-      Serial1.print(sumaPID);
-      Serial1.print("/");
-      Serial1.print(pwmM1);//Serial1.print(PWMI);
-      Serial1.print("/");
-      Serial1.print(pwmM2);//Serial1.print(PWMD);
-      Serial1.print("/");
-      Serial1.print(loop_time);
-      Serial1.print("/");
-      Serial1.print(line_position);//posicion de la linea
-      Serial1.print("/");
-      Serial1.print(distance_sensor);//(1) si obstaculo, (0) si no
-      Serial1.print("/");
-      Serial1.print(v_angular_M1);
-      Serial1.print("/");
-      Serial1.print(v_angular_M2);
-      Serial1.print("/");
-      Serial1.print(a_angular_M1);
-      Serial1.print("/");
-      Serial1.println(a_angular_M2);
-}
-
-void Seguidor::onOffSensors(bool estado){
-  int n_sensores = Serial1.parseInt(), i = 0, temp = 0;
-
-  for(i = 0; i < n_sensores; i++){
-    temp = Serial1.parseInt();
-
-    if(temp == 1){
-      infrarred_active = estado;
-      Serial1.print("message/Sensores infrarrojos ");
-      Serial1.println((estado)?"activados":"desactivados");
-
-      /*Serial.print("message/Sensores infrarrojos ");
-      Serial.println((estado)?"activados":"desactivados");*/
-    }
-
-    if(temp == 2){
-      distance_active = estado;
-      Serial1.print("message/Sensor de distancia ");
-      Serial1.println((estado)?"activado":"desactivado");
-
-      /*Serial.print("message/Sensor de distancia ");
-      Serial.println((estado)?"activado":"desactivado");*/
-    }
-  }
-}
-
-void Seguidor::status(){
-  Serial1.print("status/");
-
-  if(infrarred_active)
-    Serial1.print(1);
-  else
-    Serial1.print(0);
-//tumblr
-    Serial1.print("/");
-
-  if(distance_active)
-    Serial1.print(1);
-  else
-    Serial1.print(0);
-
-  Serial1.print("/");
-  Serial1.print(k_P);
-  Serial1.print("/");
-  Serial1.print(k_I);
-  Serial1.print("/");
-  Serial1.print(k_D);
-  Serial1.print("/");
-  //Serial1.println();
-  Serial1.print(PWM_MIN);
-  Serial1.print("/");
-  Serial1.print(PWM_MAX);
-  Serial1.print("/");
-  Serial1.print(PWM_ABS);
-  Serial1.print("/");
-  Serial1.print(PWM_BASE);
-  Serial1.print("/");
-  Serial1.print(tolerancia_dinamica);
-Serial1.print("/");
-
-  Serial1.print(FRENO_CURVA);
-  Serial1.print("/");
-  Serial1.print(delay1);
-  Serial1.print("/");
-  Serial1.print(delay2);
-
-  Serial1.print("/");
-  Serial1.print(delay_o1);
-  Serial1.print("/");
-  Serial1.print(delay_o2);
-  Serial1.print("/");
-  Serial1.print(delay_o3);
-  Serial1.print("/");
-  Serial1.print(delay_o4);
-  Serial1.print("/");
-  Serial1.print(giro_loco_porc);
-  Serial.println(giro_loco_porc);
-  Serial1.println();
-
-}
 void Seguidor::avoid(){
-  frenoABS(2);
-  int secuencia[3];
-  switch(ultima_curva){
-    case 0://curva derecha
-      secuencia[0] = 70;secuencia[1] = 32; secuencia[2] = -85;
-      ultima_curva = 1;
-      break;
-    case 1://curva izquierda
-      secuencia[0] = -70;secuencia[1] = 32; secuencia[2] = 85;
-      ultima_curva = 0;
-      break;
-  }
-  delay(1000);
+  frenoABS(1);
 
-  rotarAngulo(secuencia[0]);
-  delay(500);
-  avanzar_Encoders(secuencia[1]);
-  delay(500);
-  rotarAngulo(secuencia[2]);
-  delay(500);
+  delay(1000);
+  if(ultima_curva == 1){
+    rotarAngulo(-45);
+    delay(50);
+    rotarAngulo(-45);
+    delay(50);
+    avanzar_Encoders(35);
+    delay(50);
+    rotarAngulo(95);
+    delay(50);
+    //avanzar_Encoders(35);
+    change_Velocity(70,70);
+  }else{
+    rotarAngulo(45);
+    delay(50);
+    rotarAngulo(45);
+    delay(50);
+    avanzar_Encoders(35);
+    delay(50);
+    rotarAngulo(-95);
+    delay(50);
+    //avanzar_Encoders(35);
+    change_Velocity(70,70);
+  }
 
   in_obstaculo = true;
   //robot_active = false;
@@ -531,7 +270,7 @@ void Seguidor::avoid(){
 
 bool Seguidor::comprobar_Sensores_obstaculo(){
   for(int i = 0; i < nSensors; i++){
-    if(sensors_values[i] > 500)
+    if(sensors_values[i] > 600)
       return true;
   }
   return false;
@@ -571,9 +310,7 @@ void Seguidor::rotarAngulo(float angulo){
 
   while(calcularDiferenciaAngulo(base_m1,base_m2) < abs(angulo));
 
-  Serial.println("SalióooooooooooooooooooooooooooooooooooooooOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   change_Direction(0,0);
-  //delay(10000);
 }
 
 void Seguidor::avanzar_Encoders(float distancia){
@@ -588,7 +325,7 @@ void Seguidor::avanzar_Encoders(float distancia){
 
   while(calcularDiferenciaDistancia(partida_m1,partida_m2) < distancia);
 
-  Serial.println("SalióooooooooooooooooooooooooooooooooooooooOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
   change_Direction(0,0);
   frenoABS(1);
 }
@@ -601,8 +338,6 @@ float Seguidor::calcularDiferenciaDistancia(long posicion_original_M1, long posi
 
   float diferencia_entre_motores = (dif_p_e1 + dif_p_e2)/2.0;
   float distancia_recorrida = diferencia_entre_motores*0.08635;
-
-  Serial.print("Distancia Recorrida: ");Serial.println(distancia_recorrida);
   return distancia_recorrida;
 
 

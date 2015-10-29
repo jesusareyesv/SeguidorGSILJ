@@ -4,15 +4,6 @@
 //#define nSensors 6//----------------------------------------------------------------OJO
 #define nSensors 8//----------------------------------------------------------------OJO
 
-/*#define encoderA1_pin 3
-#define encoderB1_pin 0
-#define encoderA2_pin 2
-#define encoderB2_pin 1*/
-/*#define A1_pin 3
-#define B1_pin 0
-#define A2_pin 2
-#define B2_pin 1*/
-
 #define desired_position (nSensors - 1)*500
 
 #define baud_rate_Serial 9600
@@ -105,30 +96,25 @@ class Seguidor{
     void adjust_velocities();
     void set_SensorsValues_LinePosition(unsigned int* values, unsigned int lineP);
 
-    //void set_Positions_Encoders(long pem1, long pem2);
+    
     void leerEncoders();
     float calcularDiferenciaAngulo(long posicion_original_M1, long posicion_original_M2);
     float calcularDiferenciaDistancia(long posicion_original_M1, long posicion_original_M2);
     void rotarAngulo(float angulo);
     void avanzar_Encoders(float distancia);
 
-    void calculate_angular_values();
+    
     void init();//like python
     void emergency_stop();
     void frenoABS(int times);
     void change_Velocity(int vm1,int vm2);
 
-    void communication_principal();
-    void communication_Read();
-    void communication_Write();
-    void onOffSensors(bool estado);
     void status();
 
     void runing_Seguidor();
 
     bool isRobot_active();
 
-    //ADDED
     void avoid();
 
 
