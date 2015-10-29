@@ -11,7 +11,7 @@ Seguidor::Seguidor(double kp,double ki,double kd){
 
 void Seguidor::init(){
   //Serial.begin(baud_rate_Serial);
-  Serial1.begin(baud_rate_Bluetooth);//---------------------OJO
+  //Serial1.begin(baud_rate_Bluetooth);
   pinMode(direction_forward_M1_pin,OUTPUT);
   pinMode(direction_forward_M2_pin,OUTPUT);
   pinMode(direction_backward_M1_pin,OUTPUT);
@@ -33,23 +33,23 @@ void Seguidor::init(){
   FRENO_CURVA = freno_Curva;
 
   infrarred_active = distance_active = true;
-  robot_active = false;
-  //robot_active = true;
+  //robot_active = false;
+  robot_active = true;
   digitalWrite(stby_pin,HIGH);
   tolerancia_dinamica = 0.9;
   delay1 = 20;
   delay2 = 30;
-  delay_o1 = delay_o4 = 230;//100;
+  delay_o1 = delay_o4 = 200;//100;
   delay_o2 = 100;
-  delay_o3 = 950;
-  giro_loco_porc = giro_loco_porc2 = giro_loco;
+  delay_o3 = 750;
+  giro_loco_porc = 0.23;
 //  t_inicio = millis();
 //  t_anterior = t_actual = millis();
 }//like python
 
 void Seguidor::runing_Seguidor(){
 
-  communication_principal();
+  //communication_principal();
   if(robot_active){
     Serial.println("Activo");
     if(!infrarred_active)
@@ -291,7 +291,7 @@ void Seguidor::communication_Read(){
         k_I = (double)Serial1.parseInt()/(double)10000.0000;
         k_D = (double)Serial1.parseInt()/(double)10000.0000;
 
-        Serial1.print("message/Constantes cambiadas -> P=");Serial1.print(k_P);Serial1.print("/I=");Serial1.print(k_I);Serial1.print("/D=");Serial1.println(k_D);
+        Serial1.print("message/Constantes cambiadas -> P=");Serial1.print(4/k_P);Serial1.print("/I=");Serial1.print(4/k_I);Serial1.print("/D=");Serial1.println(4/k_D);
         //Serial.print("message/Constantes cambiadas -> P=");Serial.print(P_const);Serial.print("/I=");Serial.print(I_const);Serial.print("/D=");Serial.println(D_const);
         break;
 
@@ -506,8 +506,8 @@ void Seguidor::avoid(){
   int dM1, dM2;
 
   switch(ultima_curva){
-    case 0:dM1 = -1; dM2 = 1; giro_loco_porc = 1.00; giro_loco_porc2 = giro_loco; break;
-    case 1:dM1 = 1; dM2 = -1; giro_loco_porc = giro_loco; giro_loco_porc2 = 1.00;break;
+    case 0:dM1 = -1; dM2 = 1; break;
+    case 1:dM1 = 1; dM2 = -1;break;
   }
 
 
@@ -516,7 +516,7 @@ void Seguidor::avoid(){
   delay(delay_o1);
   change_Direction(0,0);
   delay(delay_o2);
-  change_Velocity(pwm_curva * giro_loco_porc, pwm_curva * giro_loco_porc2);
+  change_Velocity(pwm_curva * giro_loco_porc, pwm_curva);
   change_Direction(1,1);
   delay(delay_o3);
   /*change_Direction(0,0);

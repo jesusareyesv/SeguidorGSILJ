@@ -16,10 +16,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -43,6 +48,8 @@ public class VentanaP extends javax.swing.JFrame{
     
     protected ArrayList<String> comandosTecleados;
     int nComando = 0;
+    float tolerancia_curva;
+    int FRENO_CURVA, delaycurva1, delaycurva2, delay_o1, delay_o2, delay_o3, delay_o4, giro_loco;;
     
     protected String commandLineText = "";
     
@@ -62,7 +69,7 @@ public class VentanaP extends javax.swing.JFrame{
     private Random rnd = new Random();
     
     public static final String[] comandos = {"comandos","help","stop","run","status","actSensor","desactSensor","key","clear","echo","change_pwm","freno_c","c_tolerancia","c_delay"};
-    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión.","Cambia los limites pwm del arduino. OPCIONES [pwmMinima,pwmMaxima,pwmFrenoABS].","Numero de veces que se ejecuta el freno en las curvas.","Cambia la tolerancia en las curvas.","Cambia el delay obstaculo."};
+    public static final String[] comandosSignificado = {"Muestra los comandos existentes.","Muestra la ayuda de los comandos.","Detiene al robot.","Pone en marcha al robot.","Verifica el estado de todo el robot.","Activa el sensor especificado.","Desactiva el sensor especificado.","Muestra/Cambia la clave","Borra la consola.","Envía un mensaje al arduino para poder comprobar la conexión.","Cambia los limites pwm del arduino. OPCIONES [pwmMinima,pwmMaxima,pwmFrenoABS,PWM_BASE].","Numero de veces que se ejecuta el freno en las curvas.","Cambia la tolerancia en las curvas.","Cambia el delay obstaculo."};
     private String clave;
     
     /**
@@ -1223,7 +1230,19 @@ public class VentanaP extends javax.swing.JFrame{
             case 0:
                 guardarEnArchivos();
                 break;
-            case 1:break;
+            case 1:
+                String name = JOptionPane.showInputDialog(null, "Ingrese el nombre del archivo.");
+        
+                try {
+                    BufferedReader buffer = new BufferedReader(new FileReader("DataCollection/GraficasGuardadas/data_texto/"+name));
+                    
+                } catch (FileNotFoundException ex) {
+                    JOptionPane.showMessageDialog(null, "Se chingó al abrir el archivo de configuracion.");
+                }
+                
+                
+        
+                break;
             case 2:break;
             case 3:
                 
@@ -1333,7 +1352,7 @@ public class VentanaP extends javax.swing.JFrame{
     
     private void guardarEnArchivos(){
             Date fecha = new Date();
-        new Archivos.ArchivoEscrituraConfiguracion("Configuracion-"+fecha.toLocaleString()+"-", Double.parseDouble(this.textFieldConstantesPID_P.getText()), Double.parseDouble(this.textFieldConstantesPID_I.getText()), Double.parseDouble(this.textFieldConstantesPID_D.getText()), 1, 0);
+        new Archivos.ArchivoEscrituraConfiguracion("Configuracion-"+fecha.toLocaleString()+"-", Double.parseDouble(this.textFieldConstantesPID_P.getText()), Double.parseDouble(this.textFieldConstantesPID_I.getText()), Double.parseDouble(this.textFieldConstantesPID_D.getText()), 1, 0,PWM_MIN,PWM_MAX,PWM_ABS,PWM_BASE,tolerancia_curva,FRENO_CURVA,delaycurva1,delaycurva2,delay_o1,delay_o2,delay_o3,delay_o4,giro_loco);
         new Archivos.ArchivoEscrituraData("Data-"+fecha.toLocaleString()+"-", this.proportionalFRobotList, this.integralFRobotList, this.derivativeFRobotList, this.plusValuesFRobotList, this.encoderW1List, this.encoderW2List, this.encoderA1List, this.encoderA2List, this.PWMLList, this.PWMRList, this.positionList, null, cycleTimeList);
     }
     
@@ -1447,14 +1466,25 @@ public class VentanaP extends javax.swing.JFrame{
             case 11:
                 writeToDataStream("f/"+partes[1]);
                 setCommandLineText("Freno de la curva y delays= "+partes[1]);
+                String[] frag = partes[1].split(",");
+                FRENO_CURVA = Integer.parseInt(frag[0]);
+                delaycurva1 = Integer.parseInt(frag[1]);
+                delaycurva2 = Integer.parseInt(frag[2]);
                 break;
             case 12:
                 writeToDataStream("t/"+partes[1]);
+                tolerancia_curva = Float.parseFloat(partes[1]);
                 setCommandLineText("Tolerancia cambiada a "+partes[1]);
                 break;
             case 13:
                 writeToDataStream("o/"+partes[1]);
                 setCommandLineText("Delay del obstáculo cambiado a "+partes[1]);
+                String[] frag1 = partes[1].split(",");
+                delay_o1 = Integer.parseInt(frag1[0]);
+                delay_o2 = Integer.parseInt(frag1[1]);
+                delay_o3 = Integer.parseInt(frag1[2]);
+                delay_o4 = Integer.parseInt(frag1[3]);
+                giro_loco = Integer.parseInt(frag1[4]);
                 break;
             default:
                 setCommandLineText("El comando \""+comando+"\" no fue encontrado.");
@@ -1757,6 +1787,9 @@ public class VentanaP extends javax.swing.JFrame{
                                             
                                 JOptionPane.showMessageDialog(this, mensaje, "STATUS DEL ROBOT!!!", JOptionPane.INFORMATION_MESSAGE);
                             }
+                            else
+                                if(cadenas[0].compareToIgnoreCase("message2") == 0)
+                                    JOptionPane.showMessageDialog(null, "Curva hacia: "+ cadenas[1]);
                     
                     setCommandLineText(consoleLineCounter+")"+incoming);
                     consoleLineCounter++;
@@ -1833,7 +1866,7 @@ public class VentanaP extends javax.swing.JFrame{
     {
          try{
             setCommandLineText("Proporcional="+P+"/Derivatio="+D+"/Integral="+I);
-            writeToDataStream("v/"+P+"/"+I+"/"+D);
+            writeToDataStream("v/"+P*10000+"/"+I*10000+"/"+D*10000);
         }catch(Exception e){
             JOptionPane.showMessageDialog(this, "ERROR!!"+ e.getMessage()+" No es un valor válido. (Error en actualizacion de PID)", "Error en actualización de PID", JOptionPane.ERROR_MESSAGE);
             setCommandLineText("ERROR!!"+ e.getMessage()+" No es un valor válido. (Error en actualizacion de PID)");

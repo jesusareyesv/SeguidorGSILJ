@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#define nSensors 6
-//#define nSensors 8
+//#define nSensors 6
+#define nSensors 8
 
 #define desired_position (nSensors - 1)*500
 
@@ -12,15 +12,11 @@
 #define pwmM2_pin 11
 
 #define pwm_min 0
-//#define pwm_max 70
-//#define pwm_ABS 80
-//#define pwm_base 35
 #define pwm_max 110
 #define pwm_ABS 119
 #define pwm_base 73
 //ADDED
 #define pwm_curva 80
-#define giro_loco 0.23
 
 #define freno_Curva 0
 
@@ -54,7 +50,7 @@ class Seguidor{
 
     bool forward_M1, backward_M1, forward_M2, backward_M2;
     int delay1,delay2, delay_o1,delay_o2,delay_o3,delay_o4;
-    float giro_loco_porc, giro_loco_porc2;
+    float giro_loco_porc;
 
     float tolerancia_dinamica;
 

@@ -26,10 +26,10 @@ public abstract class Grafica {
     protected int contadorCiclo = 0;
     private static Date date;
     protected String fecha;
-    
+
     public static final int nMuestrasEnPantalla = 100;
-    
-    
+
+
     public Grafica(String name){
         ventanaGrafica = new JFrame(name);
         ventanaGrafica.setLayout(new GridLayout(0,1));
@@ -38,29 +38,29 @@ public abstract class Grafica {
         date = new Date();
         fecha = date.toLocaleString();
     }
-    
+
     public void mostrarGrafica(){
         if(ventanaGrafica.isVisible())
             ventanaGrafica.setVisible(false);
         else
-            ventanaGrafica.setVisible(true);    
+            ventanaGrafica.setVisible(true);
     }
-    
+
     public boolean getVisibilidad() {
         return ventanaGrafica.isVisible();
     }
-    
+
     public void guardarGraficaComoPNG(JFreeChart chart,String name){
         (new Thread() {
             public void run() {
                 try {
                     ChartUtilities.saveChartAsPNG(new File("DataCollection/graficasGuardadas/"+name+"("+fecha+").png"), chart, 800, 600);
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(null, "Grafica shit", "Oh!", JOptionPane.ERROR_MESSAGE);
+                    //JOptionPane.showMessageDialog(null, "Grafica shit", "Oh!", JOptionPane.ERROR_MESSAGE);
                 }
                 System.out.println("Hilo");
             }
         }).start();
-        
+
     }
 }
