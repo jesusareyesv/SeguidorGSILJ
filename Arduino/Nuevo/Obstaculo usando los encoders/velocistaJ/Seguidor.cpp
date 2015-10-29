@@ -54,15 +54,8 @@ void Seguidor::runing_Seguidor(){
   //communication_principal();//----------------------------------------------------------------OJO
   //this->leerEncoders();
   //this->calcularDiferenciaAngulo(0,0);
-  this->rotarAngulo(-45);
-  delay(5000);
-  this->rotarAngulo(90);
-  delay(5000);
-  this->rotarAngulo(45);
-  delay(5000);
-  this->rotarAngulo(-180);
-  delay(10000);
-  /*if(robot_active){
+
+  if(robot_active){
     Serial.println("Activo");
     if(!infrarred_active)
       line_position = desired_position;
@@ -113,7 +106,7 @@ void Seguidor::runing_Seguidor(){
   actual_time = millis();
 
   loop_time = actual_time - before_time;
-  before_time = actual_time;*/
+  before_time = actual_time;
 }
 
 void Seguidor::change_Direction(int M1,int M2){
@@ -510,42 +503,29 @@ Serial1.print("/");
 
 }
 void Seguidor::avoid(){
-  frenoABS(1);
-  int direccion1[3],direccion2[3];
+  frenoABS(2);
+  int secuencia[3];
   switch(ultima_curva){
     case 0://curva derecha
-      direccion1[0] = -1;direccion1[1] = 1;direccion1[2] = 1;
-      direccion2[0] = 1;direccion2[1] = -1;direccion2[2] = -1;
+      secuencia[0] = 70;secuencia[1] = 32; secuencia[2] = -85;
       ultima_curva = 1;
       break;
     case 1://curva izquierda
-      direccion1[0] = 1;direccion1[1] = -1;direccion1[2] = -1;
-      direccion2[0] = -1;direccion2[1] = 1;direccion2[2] = 1;
+      secuencia[0] = -70;secuencia[1] = 32; secuencia[2] = 85;
       ultima_curva = 0;
       break;
   }
+  delay(1000);
 
-  change_Velocity(pwm_giro_recta,pwm_giro_recta);
-  //direccion1[1],direccion2[1]
-  change_Direction(direccion1[0],direccion2[0]);
-  delay(tiempo_giro);
-
-  change_Direction(1,1);
-  delay(tiempo_recta);
-
-  //frenoABS(1);
-  change_Direction(direccion1[1],direccion2[1]);
-  delay(tiempo_giro);
-
-  change_Direction(1,1);
-  delay(tiempo_recta);
-
-  //frenoABS(1);
-  change_Direction(direccion1[2],direccion2[2]);
-  delay(tiempo_giro);
+  rotarAngulo(secuencia[0]);
+  delay(500);
+  avanzar_Encoders(secuencia[1]);
+  delay(500);
+  rotarAngulo(secuencia[2]);
+  delay(500);
 
   in_obstaculo = true;
-  robot_active = false;
+  //robot_active = false;
   change_Direction(1,1);
 }
 
@@ -570,7 +550,7 @@ float Seguidor::calcularDiferenciaAngulo(long posicion_original_M1, long posicio
 
   long dif_position_ambos_encoders = dif_p_e1 + dif_p_e2;
 
-  float angulo = dif_position_ambos_encoders * 45 / 120;
+  float angulo = dif_position_ambos_encoders * 0.375;
 
   Serial.print("Angulo: ");Serial.println(angulo);
 
@@ -594,4 +574,36 @@ void Seguidor::rotarAngulo(float angulo){
   Serial.println("SalióooooooooooooooooooooooooooooooooooooooOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   change_Direction(0,0);
   //delay(10000);
+}
+
+void Seguidor::avanzar_Encoders(float distancia){
+  long partida_m1 = position_encoder_M1, partida_m2 = position_encoder_M2;
+  change_Velocity(pwm_giro_recta,pwm_giro_recta);
+
+  if(distancia > 0)
+    change_Direction(1,1);
+  else
+    if(distancia < 0)
+      change_Direction(-1,-1);
+
+  while(calcularDiferenciaDistancia(partida_m1,partida_m2) < distancia);
+
+  Serial.println("SalióooooooooooooooooooooooooooooooooooooooOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  change_Direction(0,0);
+  frenoABS(1);
+}
+
+float Seguidor::calcularDiferenciaDistancia(long posicion_original_M1, long posicion_original_M2){
+  leerEncoders();
+  long dif_p_e1 = abs(position_encoder_M1 - posicion_original_M1), dif_p_e2 = abs(position_encoder_M2 - posicion_original_M2);
+
+
+
+  float diferencia_entre_motores = (dif_p_e1 + dif_p_e2)/2.0;
+  float distancia_recorrida = diferencia_entre_motores*0.08635;
+
+  Serial.print("Distancia Recorrida: ");Serial.println(distancia_recorrida);
+  return distancia_recorrida;
+
+
 }

@@ -108,8 +108,9 @@ class Seguidor{
     //void set_Positions_Encoders(long pem1, long pem2);
     void leerEncoders();
     float calcularDiferenciaAngulo(long posicion_original_M1, long posicion_original_M2);
+    float calcularDiferenciaDistancia(long posicion_original_M1, long posicion_original_M2);
     void rotarAngulo(float angulo);
-    void avanzar_Encoders();
+    void avanzar_Encoders(float distancia);
 
     void calculate_angular_values();
     void init();//like python

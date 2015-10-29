@@ -44,22 +44,27 @@ void setup(){
   pinMode(encoderB1_pin,INPUT);
   pinMode(encoderB2_pin,INPUT);*/
   Serial.begin(9600);
-  /*Serial.println("Inicio C");
+  Serial.println("Inicio C");
   for (int i = 0; i < 400; i++)  // make the calibration take about 10 seconds
   {
     qtra.calibrate();       // reads all sensors 10 times at 2.5 ms per six sensors (i.e. ~25 ms per call)
   }
   Serial.println("Fin C");
-  delay(1000);*/
+  delay(1000);
   Serial.print("Holi/Holi/Holi/Holi/Holi/Holi/Holi/Holi/Holi/Holi/Holi/Holi/Holi/Holi/Holi/Holi");
-  delay(10000);
+  delay(5000);
 }
 
 void loop(){
   if(seguidor.isRobot_active()){
     line_pos = qtra.readLine(valuesS);
     seguidor.set_SensorsValues_LinePosition(valuesS,line_pos);
-
+    /*Serial.println(line_pos);
+    for(int i = 0; i<nSensors;i++){
+      Serial.print(valuesS[i]);Serial.print("    ");
+    }
+      
+    Serial.println();Serial.println();Serial.println();*/
   }
 
   seguidor.runing_Seguidor();
