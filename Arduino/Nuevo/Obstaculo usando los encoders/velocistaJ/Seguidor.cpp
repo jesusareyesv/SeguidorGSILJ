@@ -62,7 +62,7 @@ void Seguidor::runing_Seguidor(){
       line_position = desired_position;
 
     if(!in_obstaculo){
-      
+
       distance_sensor = 0;
       if(distance_active)
         if(digitalRead(distance_sensor_pin) == HIGH){
@@ -248,7 +248,7 @@ void Seguidor::avoid(){
     delay(50);
     avanzar_Encoders(37,false);
     change_Velocity(70,70);
-    
+
     /*rotarAngulo(30);
     delay(50);
     rotarAngulo(30);
